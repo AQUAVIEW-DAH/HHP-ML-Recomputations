@@ -17,6 +17,7 @@ dist/
 # Local run artifacts
 logs/
 *.log
+OHC/output/**/tools/
 
 # OS
 .DS_Store
