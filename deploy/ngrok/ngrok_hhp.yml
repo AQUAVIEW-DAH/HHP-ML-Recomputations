@@ -1,0 +1,8 @@
+version: "3"
+# Per-HHP ngrok agent config. Binds the local control/inspection UI to port
+# 4041 so we don't collide with the MLD agent which already holds 4040.
+# The auth token is inherited from ~/.config/ngrok/ngrok.yml (the user-level
+# file written by `ngrok config add-authtoken ...`). We don't duplicate the
+# secret here; --config is merged with the user config at agent startup.
+agent:
+  web_addr: 127.0.0.1:4041

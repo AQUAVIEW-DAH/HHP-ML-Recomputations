@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Virtual environments
+hhp-env/
+venv/
+.venv/
+
+# Node (for dashboard/)
+node_modules/
+dist/
+
+# Local run artifacts
+logs/
+*.log
+
+# OS
+.DS_Store
+.vscode/
+
+# Cached RTOFS / data (external cache directory preferred)
+*.nc
+*.zarr/
+
+# Editor
+*.swp
+*.swo
