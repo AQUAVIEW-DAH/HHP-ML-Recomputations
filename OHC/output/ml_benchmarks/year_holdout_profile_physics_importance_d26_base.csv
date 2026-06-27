@@ -1,0 +1,16 @@
+feature,gain,weight,target,feature_set
+abs_lat,14006.1220703125,551.0,d26,base
+lat,4774.80810546875,698.0,d26,base
+lon,4600.05517578125,902.0,d26,base
+model_interp_tchp_kj_per_cm2,3986.103515625,579.0,d26,base
+model_interp_d26_m,3919.332275390625,668.0,d26,base
+doy_sin,2456.451416015625,271.0,d26,base
+doy_cos,2337.049560546875,247.0,d26,base
+month_int,1809.0843505859375,83.0,d26,base
+month_sin,1548.6478271484375,50.0,d26,base
+month_cos,1518.318115234375,33.0,d26,base
+nearest_rtofs_grid_distance_km,1075.4345703125,288.0,d26,base
+year,0.0,0.0,d26,base
+is_winter_jfm,0.0,0.0,d26,base
+is_summer_jas,0.0,0.0,d26,base
+is_other,0.0,0.0,d26,base

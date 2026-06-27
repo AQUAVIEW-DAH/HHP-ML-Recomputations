@@ -14,6 +14,7 @@ LAYERS_DIR = ARTIFACTS_DIR / "layers"
 
 # External caches (disk-backed, outside repo)
 RTOFS_CACHE_DIR = Path("/data/suramya/rtofs_time_matched")
+RTOFS_GLOBAL_CACHE_DIR = Path("/data/suramya/rtofs_global_cache")
 ARGO_CACHE_DIR = Path("/data/suramya/argo_cache_hhp")
 IBTRACS_CACHE_DIR = Path("/data/suramya/ibtracs_cache")
 

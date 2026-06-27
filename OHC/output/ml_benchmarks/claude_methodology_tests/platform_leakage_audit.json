@@ -1,0 +1,11 @@
+{
+  "train_2024_unique_platforms": 3712,
+  "test_2025_unique_platforms": 3661,
+  "platform_overlap_count": 2991,
+  "platform_overlap_share_of_test_platforms": 0.816989893471729,
+  "test_rows_on_seen_platforms": 11108,
+  "test_row_share_on_seen_platforms": 0.7916755755113677,
+  "median_same_platform_train_distance_km": 228.02870229026104,
+  "p90_same_platform_train_distance_km": 870.7994067217276,
+  "platform_counts_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/claude_methodology_tests/platform_counts_by_year.csv"
+}

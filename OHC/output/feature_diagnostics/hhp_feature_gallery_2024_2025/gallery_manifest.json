@@ -1,0 +1,166 @@
+{
+  "base_path": "/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025.parquet",
+  "global_path": "/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025_physics.parquet",
+  "profile_path": "/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025_profile_physics.parquet",
+  "rows_total": 41347,
+  "overview_plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/overview_collocation_gallery.png",
+  "family_overviews": {
+    "steric_height": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/family_overviews/steric_height_overview.png",
+    "brunt_vaisala": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/family_overviews/brunt_vaisala_overview.png"
+  },
+  "feature_sheets": [
+    {
+      "feature": "model_surface_temp_c",
+      "label": "Surface Temperature",
+      "family": "global_physics",
+      "units": "deg C",
+      "finite_rows": 41224,
+      "missing_rows": 123,
+      "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/global_physics__model_surface_temp_c.png"
+    },
+    {
+      "feature": "model_ssh_m",
+      "label": "Sea-Surface Height",
+      "family": "global_physics",
+      "units": "m",
+      "finite_rows": 41224,
+      "missing_rows": 123,
+      "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/global_physics__model_ssh_m.png"
+    },
+    {
+      "feature": "model_mixed_layer_thickness_m",
+      "label": "Mixed-Layer Thickness",
+      "family": "global_physics",
+      "units": "m",
+      "finite_rows": 41224,
+      "missing_rows": 123,
+      "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/global_physics__model_mixed_layer_thickness_m.png"
+    },
+    {
+      "feature": "model_surface_boundary_layer_thickness_m",
+      "label": "Surface Boundary-Layer Thickness",
+      "family": "global_physics",
+      "units": "m",
+      "finite_rows": 41224,
+      "missing_rows": 123,
+      "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/global_physics__model_surface_boundary_layer_thickness_m.png"
+    },
+    {
+      "feature": "model_temp_excess_26c",
+      "label": "Surface Temp Excess Above 26C",
+      "family": "global_physics",
+      "units": "deg C",
+      "finite_rows": 41224,
+      "missing_rows": 123,
+      "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/global_physics__model_temp_excess_26c.png"
+    },
+    {
+      "feature": "d26_minus_mlt_m",
+      "label": "D26 Minus MLT",
+      "family": "global_physics",
+      "units": "m",
+      "finite_rows": 12814,
+      "missing_rows": 28533,
+      "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/global_physics__d26_minus_mlt_m.png"
+    },
+    {
+      "feature": "d26_minus_sblt_m",
+      "label": "D26 Minus SBLT",
+      "family": "global_physics",
+      "units": "m",
+      "finite_rows": 12814,
+      "missing_rows": 28533,
+      "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/global_physics__d26_minus_sblt_m.png"
+    },
+    {
+      "feature": "d26_to_mlt_ratio",
+      "label": "D26 / MLT",
+      "family": "global_physics",
+      "units": "ratio",
+      "finite_rows": 12814,
+      "missing_rows": 28533,
+      "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/global_physics__d26_to_mlt_ratio.png"
+    },
+    {
+      "feature": "d26_to_sblt_ratio",
+      "label": "D26 / SBLT",
+      "family": "global_physics",
+      "units": "ratio",
+      "finite_rows": 12814,
+      "missing_rows": 28533,
+      "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/global_physics__d26_to_sblt_ratio.png"
+    },
+    {
+      "feature": "warm_layer_thickness_positive_m",
+      "label": "max(D26 - MLT, 0)",
+      "family": "global_physics",
+      "units": "m",
+      "finite_rows": 12814,
+      "missing_rows": 28533,
+      "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/global_physics__warm_layer_thickness_positive_m.png"
+    },
+    {
+      "feature": "model_steric_0_1000_m",
+      "label": "Steric Height 0/1000",
+      "family": "steric_height",
+      "units": "m",
+      "finite_rows": 2954,
+      "missing_rows": 38393,
+      "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/steric_height__model_steric_0_1000_m.png"
+    },
+    {
+      "feature": "model_steric_0_2000_m",
+      "label": "Steric Height 0/2000",
+      "family": "steric_height",
+      "units": "m",
+      "finite_rows": 2785,
+      "missing_rows": 38562,
+      "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/steric_height__model_steric_0_2000_m.png"
+    },
+    {
+      "feature": "model_steric_1000_ref2000_m",
+      "label": "Steric Height 1000 Ref 2000",
+      "family": "steric_height",
+      "units": "m",
+      "finite_rows": 2785,
+      "missing_rows": 38562,
+      "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/steric_height__model_steric_1000_ref2000_m.png"
+    },
+    {
+      "feature": "model_n2_mean_upper200_s2",
+      "label": "Mean N^2 Upper 200 m",
+      "family": "brunt_vaisala",
+      "units": "s^-2",
+      "finite_rows": 3068,
+      "missing_rows": 38279,
+      "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/brunt_vaisala__model_n2_mean_upper200_s2.png"
+    },
+    {
+      "feature": "model_n2_max_upper200_s2",
+      "label": "Max N^2 Upper 200 m",
+      "family": "brunt_vaisala",
+      "units": "s^-2",
+      "finite_rows": 3068,
+      "missing_rows": 38279,
+      "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/brunt_vaisala__model_n2_max_upper200_s2.png"
+    },
+    {
+      "feature": "model_n2_mean_to_d26_s2",
+      "label": "Mean N^2 to D26",
+      "family": "brunt_vaisala",
+      "units": "s^-2",
+      "finite_rows": 848,
+      "missing_rows": 40499,
+      "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/brunt_vaisala__model_n2_mean_to_d26_s2.png"
+    },
+    {
+      "feature": "model_n2_max_to_d26_s2",
+      "label": "Max N^2 to D26",
+      "family": "brunt_vaisala",
+      "units": "s^-2",
+      "finite_rows": 848,
+      "missing_rows": 40499,
+      "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/brunt_vaisala__model_n2_max_to_d26_s2.png"
+    }
+  ]
+}

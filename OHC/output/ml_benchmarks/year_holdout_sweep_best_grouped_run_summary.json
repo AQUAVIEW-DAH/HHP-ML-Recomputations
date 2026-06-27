@@ -1,0 +1,31 @@
+{
+  "source_best_summary": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/year_holdout_xgb_sweep_best_summary.csv",
+  "targets": {
+    "tchp": {
+      "feature_set": "enriched",
+      "inner_folds": 3,
+      "params": {
+        "n_estimators": 300,
+        "max_depth": 4,
+        "learning_rate": 0.03,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 1.0
+      },
+      "metrics_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/year_holdout_sweep_best_grouped_metrics_tchp.csv"
+    },
+    "d26": {
+      "feature_set": "base",
+      "inner_folds": 3,
+      "params": {
+        "n_estimators": 300,
+        "max_depth": 4,
+        "learning_rate": 0.03,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 1.0
+      },
+      "metrics_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/year_holdout_sweep_best_grouped_metrics_d26.csv"
+    }
+  }
+}

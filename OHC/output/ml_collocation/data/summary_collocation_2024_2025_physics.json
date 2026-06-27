@@ -1,0 +1,48 @@
+{
+  "input_path": "/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025.parquet",
+  "output_path": "/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025_physics.parquet",
+  "rows_total": 41347,
+  "dates_total": 90,
+  "k_neighbors": 8,
+  "feature_availability": {
+    "model_surface_temp_c": {
+      "finite_rows": 41224
+    },
+    "model_ssh_m": {
+      "finite_rows": 41224
+    },
+    "model_mixed_layer_thickness_m": {
+      "finite_rows": 41224
+    },
+    "model_surface_boundary_layer_thickness_m": {
+      "finite_rows": 41224
+    },
+    "model_temp_excess_26c": {
+      "finite_rows": 41224
+    },
+    "d26_minus_mlt_m": {
+      "finite_rows": 12814
+    },
+    "d26_minus_sblt_m": {
+      "finite_rows": 12814
+    },
+    "d26_to_mlt_ratio": {
+      "finite_rows": 12814
+    },
+    "d26_to_sblt_ratio": {
+      "finite_rows": 12814
+    },
+    "warm_layer_thickness_positive_m": {
+      "finite_rows": 12814
+    },
+    "model_ssh_x_abs_lat": {
+      "finite_rows": 41224
+    },
+    "model_mlt_x_abs_lat": {
+      "finite_rows": 41224
+    },
+    "model_temp_excess_x_abs_lat": {
+      "finite_rows": 41224
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "feature_sets": [
+    "base",
+    "enriched"
+  ],
+  "param_grid_size_per_feature_fold": 32,
+  "inner_fold_options": [
+    3,
+    4
+  ],
+  "best_summary_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/year_holdout_xgb_sweep_best_summary.csv"
+}

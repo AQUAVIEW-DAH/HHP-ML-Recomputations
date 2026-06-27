@@ -1,0 +1,708 @@
+{
+  "feature_sets": {
+    "base": {
+      "tchp": {
+        "rows_test": 4159,
+        "dates_test": 29,
+        "raw_mae": 16.169109144818023,
+        "model_mae": 11.813126408807292,
+        "raw_rmse": 22.785985671241836,
+        "model_rmse": 17.01354984850587,
+        "mae_improvement": 4.355982736010731,
+        "top_features": [
+          {
+            "feature": "abs_lat",
+            "gain": 17056.044921875
+          },
+          {
+            "feature": "model_interp_d26_m",
+            "gain": 6380.3095703125
+          },
+          {
+            "feature": "lat",
+            "gain": 5700.66015625
+          },
+          {
+            "feature": "lon",
+            "gain": 5281.89599609375
+          },
+          {
+            "feature": "month_sin",
+            "gain": 4063.87109375
+          },
+          {
+            "feature": "model_interp_tchp_kj_per_cm2",
+            "gain": 3791.290771484375
+          },
+          {
+            "feature": "month_int",
+            "gain": 2550.558349609375
+          },
+          {
+            "feature": "doy_cos",
+            "gain": 2302.396484375
+          },
+          {
+            "feature": "month_cos",
+            "gain": 2004.8651123046875
+          },
+          {
+            "feature": "doy_sin",
+            "gain": 1993.2257080078125
+          },
+          {
+            "feature": "nearest_rtofs_grid_distance_km",
+            "gain": 1109.252197265625
+          },
+          {
+            "feature": "year",
+            "gain": 0.0
+          }
+        ]
+      },
+      "d26": {
+        "rows_test": 4159,
+        "dates_test": 29,
+        "raw_mae": 14.822619983471373,
+        "model_mae": 11.546025889034988,
+        "raw_rmse": 20.1078300048244,
+        "model_rmse": 15.433557698644629,
+        "mae_improvement": 3.276594094436385,
+        "top_features": [
+          {
+            "feature": "abs_lat",
+            "gain": 14006.1220703125
+          },
+          {
+            "feature": "lat",
+            "gain": 4774.80810546875
+          },
+          {
+            "feature": "lon",
+            "gain": 4600.05517578125
+          },
+          {
+            "feature": "model_interp_tchp_kj_per_cm2",
+            "gain": 3986.103515625
+          },
+          {
+            "feature": "model_interp_d26_m",
+            "gain": 3919.332275390625
+          },
+          {
+            "feature": "doy_sin",
+            "gain": 2456.451416015625
+          },
+          {
+            "feature": "doy_cos",
+            "gain": 2337.049560546875
+          },
+          {
+            "feature": "month_int",
+            "gain": 1809.0843505859375
+          },
+          {
+            "feature": "month_sin",
+            "gain": 1548.6478271484375
+          },
+          {
+            "feature": "month_cos",
+            "gain": 1518.318115234375
+          },
+          {
+            "feature": "nearest_rtofs_grid_distance_km",
+            "gain": 1075.4345703125
+          },
+          {
+            "feature": "year",
+            "gain": 0.0
+          }
+        ]
+      }
+    },
+    "base_plus_global": {
+      "tchp": {
+        "rows_test": 4159,
+        "dates_test": 29,
+        "raw_mae": 16.169109144818023,
+        "model_mae": 11.567275539842294,
+        "raw_rmse": 22.785985671241836,
+        "model_rmse": 16.76685052501635,
+        "mae_improvement": 4.601833604975729,
+        "top_features": [
+          {
+            "feature": "abs_lat",
+            "gain": 24453.544921875
+          },
+          {
+            "feature": "model_ssh_m",
+            "gain": 11083.494140625
+          },
+          {
+            "feature": "lat",
+            "gain": 9603.7666015625
+          },
+          {
+            "feature": "model_interp_d26_m",
+            "gain": 8726.017578125
+          },
+          {
+            "feature": "model_ssh_x_abs_lat",
+            "gain": 6828.16357421875
+          },
+          {
+            "feature": "model_temp_excess_x_abs_lat",
+            "gain": 6314.50048828125
+          },
+          {
+            "feature": "month_sin",
+            "gain": 4953.7119140625
+          },
+          {
+            "feature": "lon",
+            "gain": 4113.66015625
+          },
+          {
+            "feature": "model_surface_temp_c",
+            "gain": 3690.169189453125
+          },
+          {
+            "feature": "model_interp_tchp_kj_per_cm2",
+            "gain": 3663.169677734375
+          },
+          {
+            "feature": "d26_minus_mlt_m",
+            "gain": 3174.904052734375
+          },
+          {
+            "feature": "d26_to_sblt_ratio",
+            "gain": 2925.92529296875
+          }
+        ]
+      },
+      "d26": {
+        "rows_test": 4159,
+        "dates_test": 29,
+        "raw_mae": 14.822619983471373,
+        "model_mae": 11.389575666626792,
+        "raw_rmse": 20.1078300048244,
+        "model_rmse": 15.237761367976848,
+        "mae_improvement": 3.4330443168445814,
+        "top_features": [
+          {
+            "feature": "abs_lat",
+            "gain": 20709.142578125
+          },
+          {
+            "feature": "lat",
+            "gain": 7524.54833984375
+          },
+          {
+            "feature": "model_ssh_x_abs_lat",
+            "gain": 5372.28076171875
+          },
+          {
+            "feature": "model_temp_excess_x_abs_lat",
+            "gain": 5215.85009765625
+          },
+          {
+            "feature": "lon",
+            "gain": 5168.3671875
+          },
+          {
+            "feature": "model_interp_d26_m",
+            "gain": 4844.990234375
+          },
+          {
+            "feature": "model_interp_tchp_kj_per_cm2",
+            "gain": 4573.8740234375
+          },
+          {
+            "feature": "model_ssh_m",
+            "gain": 4542.98486328125
+          },
+          {
+            "feature": "model_surface_temp_c",
+            "gain": 4185.5380859375
+          },
+          {
+            "feature": "d26_minus_sblt_m",
+            "gain": 3909.97265625
+          },
+          {
+            "feature": "model_temp_excess_26c",
+            "gain": 3169.45458984375
+          },
+          {
+            "feature": "doy_cos",
+            "gain": 2875.943603515625
+          }
+        ]
+      }
+    },
+    "base_plus_profile": {
+      "tchp": {
+        "rows_test": 4159,
+        "dates_test": 29,
+        "raw_mae": 16.169109144818023,
+        "model_mae": 11.807177235216068,
+        "raw_rmse": 22.785985671241836,
+        "model_rmse": 16.984314090293946,
+        "mae_improvement": 4.361931909601955,
+        "top_features": [
+          {
+            "feature": "abs_lat",
+            "gain": 16842.4375
+          },
+          {
+            "feature": "lat",
+            "gain": 6216.03759765625
+          },
+          {
+            "feature": "model_interp_d26_m",
+            "gain": 6095.37255859375
+          },
+          {
+            "feature": "lon",
+            "gain": 5142.44140625
+          },
+          {
+            "feature": "month_sin",
+            "gain": 4345.65869140625
+          },
+          {
+            "feature": "model_interp_tchp_kj_per_cm2",
+            "gain": 4279.73828125
+          },
+          {
+            "feature": "doy_sin",
+            "gain": 2334.417236328125
+          },
+          {
+            "feature": "month_int",
+            "gain": 2323.641845703125
+          },
+          {
+            "feature": "doy_cos",
+            "gain": 2214.06787109375
+          },
+          {
+            "feature": "month_cos",
+            "gain": 2057.56298828125
+          },
+          {
+            "feature": "model_n2_max_upper200_s2",
+            "gain": 2025.451171875
+          },
+          {
+            "feature": "model_n2_mean_to_d26_s2",
+            "gain": 1949.756591796875
+          }
+        ]
+      },
+      "d26": {
+        "rows_test": 4159,
+        "dates_test": 29,
+        "raw_mae": 14.822619983471373,
+        "model_mae": 11.598218567541704,
+        "raw_rmse": 20.1078300048244,
+        "model_rmse": 15.493248339529886,
+        "mae_improvement": 3.2244014159296697,
+        "top_features": [
+          {
+            "feature": "abs_lat",
+            "gain": 14052.3642578125
+          },
+          {
+            "feature": "lat",
+            "gain": 5422.62841796875
+          },
+          {
+            "feature": "lon",
+            "gain": 4669.3427734375
+          },
+          {
+            "feature": "model_interp_tchp_kj_per_cm2",
+            "gain": 4156.1826171875
+          },
+          {
+            "feature": "model_interp_d26_m",
+            "gain": 3851.873046875
+          },
+          {
+            "feature": "doy_cos",
+            "gain": 2509.364501953125
+          },
+          {
+            "feature": "doy_sin",
+            "gain": 2433.626220703125
+          },
+          {
+            "feature": "month_cos",
+            "gain": 2002.760009765625
+          },
+          {
+            "feature": "model_steric_1000_ref2000_m",
+            "gain": 1996.6551513671875
+          },
+          {
+            "feature": "month_sin",
+            "gain": 1832.807861328125
+          },
+          {
+            "feature": "model_n2_max_upper200_s2",
+            "gain": 1750.203369140625
+          },
+          {
+            "feature": "model_steric_0_1000_m",
+            "gain": 1649.0772705078125
+          }
+        ]
+      }
+    },
+    "base_plus_global_plus_profile": {
+      "tchp": {
+        "rows_test": 4159,
+        "dates_test": 29,
+        "raw_mae": 16.169109144818023,
+        "model_mae": 11.581994427874081,
+        "raw_rmse": 22.785985671241836,
+        "model_rmse": 16.75190770861927,
+        "mae_improvement": 4.587114716943942,
+        "top_features": [
+          {
+            "feature": "abs_lat",
+            "gain": 26153.1875
+          },
+          {
+            "feature": "model_ssh_m",
+            "gain": 12428.158203125
+          },
+          {
+            "feature": "lat",
+            "gain": 10283.302734375
+          },
+          {
+            "feature": "model_interp_d26_m",
+            "gain": 7531.27978515625
+          },
+          {
+            "feature": "model_ssh_x_abs_lat",
+            "gain": 6644.810546875
+          },
+          {
+            "feature": "model_temp_excess_x_abs_lat",
+            "gain": 5272.28515625
+          },
+          {
+            "feature": "month_sin",
+            "gain": 4259.64111328125
+          },
+          {
+            "feature": "model_temp_excess_26c",
+            "gain": 3834.244384765625
+          },
+          {
+            "feature": "lon",
+            "gain": 3832.601318359375
+          },
+          {
+            "feature": "model_interp_tchp_kj_per_cm2",
+            "gain": 3509.319091796875
+          },
+          {
+            "feature": "d26_minus_mlt_m",
+            "gain": 3389.98583984375
+          },
+          {
+            "feature": "model_surface_temp_c",
+            "gain": 3194.23974609375
+          }
+        ]
+      },
+      "d26": {
+        "rows_test": 4159,
+        "dates_test": 29,
+        "raw_mae": 14.822619983471373,
+        "model_mae": 11.366865986821674,
+        "raw_rmse": 20.1078300048244,
+        "model_rmse": 15.233511876629594,
+        "mae_improvement": 3.4557539966496993,
+        "top_features": [
+          {
+            "feature": "abs_lat",
+            "gain": 21357.880859375
+          },
+          {
+            "feature": "lat",
+            "gain": 8325.55859375
+          },
+          {
+            "feature": "lon",
+            "gain": 5699.3525390625
+          },
+          {
+            "feature": "model_temp_excess_26c",
+            "gain": 5567.6865234375
+          },
+          {
+            "feature": "model_ssh_x_abs_lat",
+            "gain": 5218.23193359375
+          },
+          {
+            "feature": "model_interp_d26_m",
+            "gain": 4963.416015625
+          },
+          {
+            "feature": "model_interp_tchp_kj_per_cm2",
+            "gain": 4811.484375
+          },
+          {
+            "feature": "model_temp_excess_x_abs_lat",
+            "gain": 4566.00732421875
+          },
+          {
+            "feature": "model_surface_temp_c",
+            "gain": 4380.1298828125
+          },
+          {
+            "feature": "model_ssh_m",
+            "gain": 4355.37841796875
+          },
+          {
+            "feature": "d26_minus_sblt_m",
+            "gain": 3393.39599609375
+          },
+          {
+            "feature": "doy_cos",
+            "gain": 3076.838134765625
+          }
+        ]
+      }
+    }
+  },
+  "target_correlations": {
+    "delta_tchp_kj_per_cm2": [
+      {
+        "feature": "d26_minus_sblt_m",
+        "rows": 795,
+        "pearson_r": 0.19861781434421819,
+        "abs_pearson_r": 0.19861781434421819
+      },
+      {
+        "feature": "d26_minus_mlt_m",
+        "rows": 795,
+        "pearson_r": 0.17890466827047188,
+        "abs_pearson_r": 0.17890466827047188
+      },
+      {
+        "feature": "warm_layer_thickness_positive_m",
+        "rows": 795,
+        "pearson_r": 0.17886612735773036,
+        "abs_pearson_r": 0.17886612735773036
+      },
+      {
+        "feature": "model_temp_excess_26c",
+        "rows": 795,
+        "pearson_r": 0.15248331202442755,
+        "abs_pearson_r": 0.15248331202442755
+      },
+      {
+        "feature": "model_surface_temp_c",
+        "rows": 795,
+        "pearson_r": 0.15248331202442567,
+        "abs_pearson_r": 0.15248331202442567
+      },
+      {
+        "feature": "model_n2_max_upper200_s2",
+        "rows": 795,
+        "pearson_r": -0.15230359938483198,
+        "abs_pearson_r": 0.15230359938483198
+      },
+      {
+        "feature": "model_ssh_x_abs_lat",
+        "rows": 795,
+        "pearson_r": -0.13210890394313762,
+        "abs_pearson_r": 0.13210890394313762
+      },
+      {
+        "feature": "model_mixed_layer_thickness_m",
+        "rows": 795,
+        "pearson_r": 0.12527632951948228,
+        "abs_pearson_r": 0.12527632951948228
+      },
+      {
+        "feature": "model_n2_mean_to_d26_s2",
+        "rows": 795,
+        "pearson_r": -0.11432651123772787,
+        "abs_pearson_r": 0.11432651123772787
+      },
+      {
+        "feature": "model_steric_0_1000_m",
+        "rows": 795,
+        "pearson_r": 0.11291391535700167,
+        "abs_pearson_r": 0.11291391535700167
+      },
+      {
+        "feature": "model_n2_max_to_d26_s2",
+        "rows": 795,
+        "pearson_r": -0.1125602630740812,
+        "abs_pearson_r": 0.1125602630740812
+      },
+      {
+        "feature": "model_ssh_m",
+        "rows": 795,
+        "pearson_r": 0.10197319117927926,
+        "abs_pearson_r": 0.10197319117927926
+      }
+    ],
+    "delta_d26_m": [
+      {
+        "feature": "model_n2_max_upper200_s2",
+        "rows": 795,
+        "pearson_r": -0.19811550244348938,
+        "abs_pearson_r": 0.19811550244348938
+      },
+      {
+        "feature": "model_mixed_layer_thickness_m",
+        "rows": 795,
+        "pearson_r": 0.18075176290853634,
+        "abs_pearson_r": 0.18075176290853634
+      },
+      {
+        "feature": "model_n2_mean_upper200_s2",
+        "rows": 795,
+        "pearson_r": -0.14987420801091705,
+        "abs_pearson_r": 0.14987420801091705
+      },
+      {
+        "feature": "model_temp_excess_x_abs_lat",
+        "rows": 795,
+        "pearson_r": -0.1425306586837704,
+        "abs_pearson_r": 0.1425306586837704
+      },
+      {
+        "feature": "model_n2_max_to_d26_s2",
+        "rows": 795,
+        "pearson_r": -0.13698814906635468,
+        "abs_pearson_r": 0.13698814906635468
+      },
+      {
+        "feature": "model_n2_mean_to_d26_s2",
+        "rows": 795,
+        "pearson_r": -0.13330557231138201,
+        "abs_pearson_r": 0.13330557231138201
+      },
+      {
+        "feature": "model_steric_0_1000_m",
+        "rows": 795,
+        "pearson_r": 0.12361632603046924,
+        "abs_pearson_r": 0.12361632603046924
+      },
+      {
+        "feature": "model_mlt_x_abs_lat",
+        "rows": 795,
+        "pearson_r": 0.11867458154956198,
+        "abs_pearson_r": 0.11867458154956198
+      },
+      {
+        "feature": "model_steric_0_2000_m",
+        "rows": 795,
+        "pearson_r": 0.10807088037079399,
+        "abs_pearson_r": 0.10807088037079399
+      },
+      {
+        "feature": "model_ssh_m",
+        "rows": 795,
+        "pearson_r": 0.10781506867959902,
+        "abs_pearson_r": 0.10781506867959902
+      },
+      {
+        "feature": "d26_to_sblt_ratio",
+        "rows": 795,
+        "pearson_r": -0.10440515694642062,
+        "abs_pearson_r": 0.10440515694642062
+      },
+      {
+        "feature": "d26_to_mlt_ratio",
+        "rows": 795,
+        "pearson_r": -0.0973392558392077,
+        "abs_pearson_r": 0.0973392558392077
+      }
+    ]
+  },
+  "high_redundancy_pairs": [
+    {
+      "feature_a": "model_surface_temp_c",
+      "feature_b": "model_temp_excess_26c",
+      "pearson_r": 0.9999999999999973,
+      "abs_pearson_r": 0.9999999999999973
+    },
+    {
+      "feature_a": "d26_minus_mlt_m",
+      "feature_b": "warm_layer_thickness_positive_m",
+      "pearson_r": 0.9960593797977428,
+      "abs_pearson_r": 0.9960593797977428
+    },
+    {
+      "feature_a": "model_steric_0_1000_m",
+      "feature_b": "model_steric_0_2000_m",
+      "pearson_r": 0.9742042013044628,
+      "abs_pearson_r": 0.9742042013044628
+    },
+    {
+      "feature_a": "model_surface_temp_c",
+      "feature_b": "model_temp_excess_x_abs_lat",
+      "pearson_r": 0.9575218972480494,
+      "abs_pearson_r": 0.9575218972480494
+    },
+    {
+      "feature_a": "model_temp_excess_26c",
+      "feature_b": "model_temp_excess_x_abs_lat",
+      "pearson_r": 0.9575218971332556,
+      "abs_pearson_r": 0.9575218971332556
+    },
+    {
+      "feature_a": "model_ssh_m",
+      "feature_b": "model_ssh_x_abs_lat",
+      "pearson_r": 0.9452753135554,
+      "abs_pearson_r": 0.9452753135554
+    },
+    {
+      "feature_a": "model_mixed_layer_thickness_m",
+      "feature_b": "model_mlt_x_abs_lat",
+      "pearson_r": 0.9331691150534065,
+      "abs_pearson_r": 0.9331691150534065
+    },
+    {
+      "feature_a": "model_steric_0_2000_m",
+      "feature_b": "model_steric_1000_ref2000_m",
+      "pearson_r": 0.9159611031130228,
+      "abs_pearson_r": 0.9159611031130228
+    },
+    {
+      "feature_a": "d26_minus_sblt_m",
+      "feature_b": "warm_layer_thickness_positive_m",
+      "pearson_r": 0.9014324559854435,
+      "abs_pearson_r": 0.9014324559854435
+    },
+    {
+      "feature_a": "d26_minus_mlt_m",
+      "feature_b": "d26_minus_sblt_m",
+      "pearson_r": 0.8997281412489863,
+      "abs_pearson_r": 0.8997281412489863
+    },
+    {
+      "feature_a": "model_n2_max_upper200_s2",
+      "feature_b": "model_n2_max_to_d26_s2",
+      "pearson_r": 0.8929652383763247,
+      "abs_pearson_r": 0.8929652383763247
+    },
+    {
+      "feature_a": "model_ssh_x_abs_lat",
+      "feature_b": "model_temp_excess_x_abs_lat",
+      "pearson_r": 0.8616186151584764,
+      "abs_pearson_r": 0.8616186151584764
+    }
+  ]
+}

@@ -18,6 +18,35 @@ dist/
 logs/
 *.log
 OHC/output/**/tools/
+OHC/output/*
+!OHC/output/density_scatter_diagnostics_2024_2025/
+!OHC/output/density_scatter_diagnostics_2024_2025/**
+!OHC/output/feature_diagnostics/
+!OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/
+OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/*
+OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025.tar.gz
+!OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/README.md
+!OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/gallery_manifest.json
+!OHC/output/ml_benchmarks/
+!OHC/output/ml_benchmarks/*.csv
+!OHC/output/ml_benchmarks/*.json
+!OHC/output/ml_benchmarks/*.md
+!OHC/output/ml_benchmarks/*.parquet
+!OHC/output/ml_collocation/
+!OHC/output/ml_collocation/data/
+OHC/output/ml_collocation/data/*.csv
+OHC/output/ml_collocation/data/*.parquet
+!OHC/output/ml_collocation/data/*.json
+!OHC/output/reports/
+OHC/output/reports/check_pages/
+!OHC/output/reports/*.pdf
+!OHC/output/reports/*.tex
+!OHC/output/reports/*.html
+!OHC/output/grid_resolution_analysis.csv
+!OHC/output/grid_resolution_analysis.md
+!OHC/output/grid_resolution_analysis.txt
+!OHC/output/seasonal_interpolation_benchmark.csv
+!OHC/output/seasonal_interpolation_benchmark.txt
 
 # OS
 .DS_Store

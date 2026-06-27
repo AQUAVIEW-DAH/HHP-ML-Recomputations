@@ -41,6 +41,7 @@ class ArgoHHPProfile:
     source: str
     instrument: str
     cast_id: str          # path-form cast id (e.g. "aoml/4903556/profiles/R4903556_157.nc")
+    profile_index: int    # N_PROF index within the NetCDF file
     platform: str         # platform number
     cycle: str
     lat: float
@@ -55,6 +56,10 @@ class ArgoHHPProfile:
         # In the upper ocean, 1 dbar ≈ 1 m to ~1% accuracy. Good enough for a
         # coarse depth-coverage filter; TEOS-10 computations below use true p.
         return float(max(self.pressure_dbar)) if self.pressure_dbar else 0.0
+
+    @property
+    def profile_key(self) -> str:
+        return f"{self.cast_id}#prof{self.profile_index}"
 
 
 def _fetch_bytes(url: str, timeout_seconds: int = 300) -> bytes:
@@ -170,6 +175,20 @@ def _preferred_var(ds: xr.Dataset, raw_name: str, adjusted_name: str) -> tuple[s
     return raw_name, qc_name if qc_name in ds else None
 
 
+def _preferred_pressure_var(ds: xr.Dataset) -> tuple[str, str | None]:
+    """Choose the pressure variable, rejecting implausible adjusted pressure."""
+    if "PRES_ADJUSTED" in ds and np.isfinite(ds["PRES_ADJUSTED"].values).any():
+        adjusted = np.asarray(ds["PRES_ADJUSTED"].values, dtype=float)
+        finite = adjusted[np.isfinite(adjusted)]
+        if finite.size:
+            # Tiny negative pressures can occur near the surface and are handled
+            # later by clipping to 0 dbar. Large negatives are not physically
+            # plausible sea pressure and indicate bad adjusted metadata.
+            if finite.min() >= -2.0 and finite.max() <= 12000.0:
+                return "PRES_ADJUSTED", "PRES_ADJUSTED_QC" if "PRES_ADJUSTED_QC" in ds else None
+    return "PRES", "PRES_QC" if "PRES_QC" in ds else None
+
+
 def _extract_profiles_from_file(local_path: Path, source_file: str) -> list[ArgoHHPProfile]:
     profiles: list[ArgoHHPProfile] = []
     with xr.open_dataset(local_path, decode_timedelta=False) as ds:
@@ -177,7 +196,7 @@ def _extract_profiles_from_file(local_path: Path, source_file: str) -> list[Argo
         if any(v not in ds for v in required):
             return profiles
 
-        pres_var, pres_qc_var = _preferred_var(ds, "PRES", "PRES_ADJUSTED")
+        pres_var, pres_qc_var = _preferred_pressure_var(ds)
         temp_var, temp_qc_var = _preferred_var(ds, "TEMP", "TEMP_ADJUSTED")
         psal_var, psal_qc_var = _preferred_var(ds, "PSAL", "PSAL_ADJUSTED")
 
@@ -214,6 +233,11 @@ def _extract_profiles_from_file(local_path: Path, source_file: str) -> list[Argo
 
             order = np.argsort(p)
             p, t, s = p[order], t[order], s[order]
+            # Small negative sea pressures can occur for the shallowest sample
+            # due to reference/measurement noise; treat these as surface.
+            p = np.where((p < 0.0) & (p > -2.0), 0.0, p)
+            if float(p.min()) < 0.0:
+                continue
 
             platform = _decode_scalar(ds["PLATFORM_NUMBER"].values[idx]) if "PLATFORM_NUMBER" in ds else "unknown"
             cycle = _decode_scalar(ds["CYCLE_NUMBER"].values[idx]) if "CYCLE_NUMBER" in ds else str(idx)
@@ -227,6 +251,7 @@ def _extract_profiles_from_file(local_path: Path, source_file: str) -> list[Argo
                     source="ARGO_GDAC",
                     instrument="pfl",
                     cast_id=source_file,
+                    profile_index=idx,
                     platform=platform,
                     cycle=cycle,
                     lat=float(ds["LATITUDE"].values[idx]),

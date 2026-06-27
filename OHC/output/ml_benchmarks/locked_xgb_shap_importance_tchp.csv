@@ -1,0 +1,16 @@
+feature,mean_abs_shap
+abs_lat,7.2689357
+model_interp_tchp_kj_per_cm2,3.975907
+model_interp_d26_m,3.533533
+lon,3.2022097
+lat,2.5513027
+doy_sin,0.76419723
+doy_cos,0.56729645
+year,0.4633481
+nearest_rtofs_grid_distance_km,0.4043529
+month_int,0.38610673
+month_sin,0.11281203
+month_cos,0.06782328
+is_other,0.0388965
+is_winter_jfm,0.0
+is_summer_jas,0.0

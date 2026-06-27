@@ -1,0 +1,97 @@
+{
+  "years": [
+    2024,
+    2025
+  ],
+  "method": "inverse_distance_squared_k8",
+  "outputs": {
+    "data_dir": "/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data",
+    "combined_parquet": "/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025.parquet",
+    "combined_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025.csv"
+  },
+  "summaries": [
+    {
+      "label": "2024",
+      "rows_total": 27316,
+      "dates_total": 61,
+      "rows_by_year": {
+        "2024": 27316
+      },
+      "rows_by_month": {
+        "1": 448,
+        "2": 2195,
+        "3": 5919,
+        "7": 6779,
+        "8": 6069,
+        "9": 5906
+      },
+      "rows_by_season": {
+        "summer_jas": 18754,
+        "winter_jfm": 8562
+      },
+      "finite_argo_tchp_rows": 8948,
+      "finite_argo_d26_rows": 8948,
+      "finite_model_tchp_rows": 8551,
+      "finite_model_d26_rows": 8551,
+      "finite_delta_tchp_rows": 8384,
+      "finite_delta_d26_rows": 8384
+    },
+    {
+      "label": "2025",
+      "rows_total": 14031,
+      "dates_total": 29,
+      "rows_by_year": {
+        "2025": 14031
+      },
+      "rows_by_month": {
+        "1": 976,
+        "2": 4370,
+        "5": 2501,
+        "6": 469,
+        "7": 2345,
+        "8": 3370
+      },
+      "rows_by_season": {
+        "other": 2970,
+        "summer_jas": 5715,
+        "winter_jfm": 5346
+      },
+      "finite_argo_tchp_rows": 4490,
+      "finite_argo_d26_rows": 4490,
+      "finite_model_tchp_rows": 4263,
+      "finite_model_d26_rows": 4263,
+      "finite_delta_tchp_rows": 4159,
+      "finite_delta_d26_rows": 4159
+    },
+    {
+      "label": "2024_2025",
+      "rows_total": 41347,
+      "dates_total": 90,
+      "rows_by_year": {
+        "2024": 27316,
+        "2025": 14031
+      },
+      "rows_by_month": {
+        "1": 1424,
+        "2": 6565,
+        "3": 5919,
+        "5": 2501,
+        "6": 469,
+        "7": 9124,
+        "8": 9439,
+        "9": 5906
+      },
+      "rows_by_season": {
+        "other": 2970,
+        "summer_jas": 24469,
+        "winter_jfm": 13908
+      },
+      "finite_argo_tchp_rows": 13438,
+      "finite_argo_d26_rows": 13438,
+      "finite_model_tchp_rows": 12814,
+      "finite_model_d26_rows": 12814,
+      "finite_delta_tchp_rows": 12543,
+      "finite_delta_d26_rows": 12543
+    }
+  ]
+}

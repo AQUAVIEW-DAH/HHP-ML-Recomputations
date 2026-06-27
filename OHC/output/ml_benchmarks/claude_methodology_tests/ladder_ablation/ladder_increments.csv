@@ -1,0 +1,7 @@
+target,split,raw_mae,F0_state,F1a_+abslat,F1b_+abslat_phys,F2_+latlon(geo),dABSLAT(F0-F1b),dLON(F1b-F2)
+tchp,year_holdout,16.169,12.576,11.699,11.713,11.549,0.862,0.165
+tchp,tile_group_oof,16.022,13.134,12.105,12.003,11.906,1.132,0.097
+tchp,platform_group_oof,16.022,12.653,11.503,11.439,11.199,1.214,0.24
+d26,year_holdout,14.823,12.876,11.859,11.844,11.319,1.032,0.525
+d26,tile_group_oof,14.477,12.787,11.459,11.386,10.941,1.402,0.444
+d26,platform_group_oof,14.477,12.245,10.857,10.846,10.284,1.399,0.561

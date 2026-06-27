@@ -1,0 +1,79 @@
+{
+  "input_path": "/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025_physics.parquet",
+  "output_dir": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/claude_methodology_tests",
+  "threshold_breakdown": {
+    "summary_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/claude_methodology_tests/threshold_breakdown_2x2.csv",
+    "season_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/claude_methodology_tests/threshold_breakdown_by_season.csv",
+    "rows": [
+      {
+        "cell": "neither_cross",
+        "rows": 27638,
+        "dates": 90,
+        "rows_pct": 0.6684402737804436,
+        "argo_surface_temp_mean_c": 13.649529548738135,
+        "model_surface_temp_mean_c": 13.63634204864502,
+        "surface_temp_bias_model_minus_argo_c": -0.04385145293338552,
+        "argo_tchp_mean": NaN,
+        "model_tchp_mean": NaN,
+        "argo_d26_mean": NaN,
+        "model_d26_mean": NaN
+      },
+      {
+        "cell": "both_cross",
+        "rows": 12543,
+        "dates": 90,
+        "rows_pct": 0.30335937311050376,
+        "argo_surface_temp_mean_c": 28.67227844689001,
+        "model_surface_temp_mean_c": 28.561866760253906,
+        "surface_temp_bias_model_minus_argo_c": -0.11041240407777518,
+        "argo_tchp_mean": 62.71422704775549,
+        "model_tchp_mean": 53.48992156982422,
+        "argo_d26_mean": 73.0990917643964,
+        "model_d26_mean": 65.35499572753906
+      },
+      {
+        "cell": "argo_only",
+        "rows": 895,
+        "dates": 90,
+        "rows_pct": 0.021646068638595303,
+        "argo_surface_temp_mean_c": 26.53902769248579,
+        "model_surface_temp_mean_c": 25.798839569091797,
+        "surface_temp_bias_model_minus_argo_c": -0.672451289879822,
+        "argo_tchp_mean": 7.217321523217805,
+        "model_tchp_mean": NaN,
+        "argo_d26_mean": 39.03856538027696,
+        "model_d26_mean": NaN
+      },
+      {
+        "cell": "rtofs_only",
+        "rows": 271,
+        "dates": 82,
+        "rows_pct": 0.006554284470457349,
+        "argo_surface_temp_mean_c": 19.45019332113301,
+        "model_surface_temp_mean_c": 27.453157424926758,
+        "surface_temp_bias_model_minus_argo_c": 8.002964863917924,
+        "argo_tchp_mean": NaN,
+        "model_tchp_mean": 20.589813232421875,
+        "argo_d26_mean": NaN,
+        "model_d26_mean": 39.588680267333984
+      }
+    ]
+  },
+  "support_distance_decay": {
+    "metrics_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/claude_methodology_tests/support_distance_decay_metrics.csv"
+  },
+  "platform_leakage_audit": {
+    "train_2024_unique_platforms": 3712,
+    "test_2025_unique_platforms": 3661,
+    "platform_overlap_count": 2991,
+    "platform_overlap_share_of_test_platforms": 0.816989893471729,
+    "test_rows_on_seen_platforms": 11108,
+    "test_row_share_on_seen_platforms": 0.7916755755113677,
+    "median_same_platform_train_distance_km": 228.02870229026104,
+    "p90_same_platform_train_distance_km": 870.7994067217276,
+    "platform_counts_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/claude_methodology_tests/platform_counts_by_year.csv"
+  },
+  "ablation_and_honest_splits": {
+    "summary_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/claude_methodology_tests/global_methodology_ablation_summary.csv"
+  }
+}

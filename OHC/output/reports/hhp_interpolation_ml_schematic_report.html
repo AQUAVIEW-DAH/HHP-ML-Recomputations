@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>HHP Interpolation and ML Correction Schematic Report</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; margin: 32px 42px; color: #111; line-height: 1.35; }
+  h1, h2, h3 { color: #0f2f5f; margin-bottom: 0.3em; }
+  h1 { font-size: 28px; border-bottom: 2px solid #0f2f5f; padding-bottom: 8px; }
+  h2 { font-size: 20px; margin-top: 28px; border-bottom: 1px solid #bfc8d8; padding-bottom: 4px; }
+  h3 { font-size: 16px; margin-top: 20px; }
+  p, li { font-size: 11.5pt; }
+  ul { margin-top: 0.3em; }
+  code { font-family: "Courier New", monospace; font-size: 9.5pt; background: #f3f5f8; padding: 1px 4px; }
+  pre { font-family: "Courier New", monospace; font-size: 9pt; background: #f7f8fb; border: 1px solid #d7dce5; padding: 12px; white-space: pre-wrap; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 18px 0; font-size: 10.5pt; }
+  th, td { border: 1px solid #cfd6e2; padding: 7px 8px; vertical-align: top; }
+  th { background: #eaf0fb; text-align: left; }
+  .small { font-size: 9.5pt; color: #333; }
+  .callout { border-left: 4px solid #2d6cdf; background: #eef4ff; padding: 10px 12px; margin: 12px 0; }
+  .grid2 { display: block; }
+  .footer { margin-top: 28px; font-size: 9pt; color: #555; }
+</style>
+</head>
+<body>
+<h1>HHP Interpolation and ML Correction Schematic Report</h1>
+<p><strong>Project scope.</strong> This report documents the current Ocean Heat Content / Tropical Cyclone Heat Potential (OHC/TCHP) workflow in <code>/home/suramya/HHP-Prediction/OHC</code>. It covers: (1) TEOS-10 calculations, (2) Argo-RTOFS collocation and interpolation, (3) why valid maps concentrate in warm-water regions, and (4) the machine-learning correction pipeline built on collocated Argo-supported points.</p>
+
+<h2>1. Files of Record</h2>
+<table>
+  <tr><th>File</th><th>Role in pipeline</th></tr>
+  <tr><td><code>OHC/teos_ohc.py</code></td><td>Core TEOS-10 / GSW calculation for <code>D26</code>, <code>OHC</code>, and <code>TCHP</code>.</td></tr>
+  <tr><td><code>OHC/seasonal_map_common.py</code></td><td>Common seasonal mapping helpers, interpolation methods, land overlay, and grid construction.</td></tr>
+  <tr><td><code>OHC/build_rtofs_at_argo_points_surface_diff_2024.py</code></td><td>Exact-location 2024 Argo/RTOFS collocation and seasonal surface-difference rendering.</td></tr>
+  <tr><td><code>OHC/build_rtofs_at_argo_points_multiyear.py</code></td><td>Training-table builder for multiyear Argo/RTOFS collocation.</td></tr>
+  <tr><td><code>OHC/benchmark_rtofs_argo_tabular_models.py</code></td><td>First benchmarking pass across baseline, classical ML, neural MLP, and XGBoost models.</td></tr>
+  <tr><td><code>OHC/run_year_holdout_xgb_2024_2025.py</code></td><td>Official year-holdout XGBoost run: train on 2024, test on 2025.</td></tr>
+  <tr><td><code>OHC/run_year_holdout_xgb_sweep_2024_2025.py</code></td><td>XGBoost hyperparameter and feature-set sweep for the 2024-to-2025 transfer test.</td></tr>
+  <tr><td><code>OHC/evaluate_year_holdout_xgb_sweep_best.py</code></td><td>Refits best sweep models and writes grouped 2025 metrics plus prediction tables used by maps.</td></tr>
+  <tr><td><code>OHC/render_ml_corrected_rtofs_2025.py</code></td><td>Renders winter/summer 2025 raw RTOFS, ML-corrected RTOFS, and Argo-minus-model maps.</td></tr>
+  <tr><td><code>OHC/fit_locked_xgb_feature_importance.py</code></td><td>Feature importance and SHAP-style attribution for the locked XGBoost model.</td></tr>
+</table>
+
+<h2>2. High-Level Code Schematic</h2>
+<pre>
+Argo profiles (temperature, salinity, pressure/depth)
+        |
+        v
+TEOS-10 calculation in teos_ohc.py
+  -> D26 depth
+  -> OHC above 26 C
+  -> TCHP in kJ/cm^2
+        |
+        +------------------------------+
+        |                              |
+        v                              v
+Seasonal Argo maps                Multiyear Argo table
+                                       |
+RTOFS daily global TCHP/D26 fields     |
+        |                              |
+        v                              v
+Sample RTOFS to exact Argo points using inverse-distance-squared from 8 nearest cells
+        |
+        v
+Collocated table: Argo, raw RTOFS-at-Argo, residuals
+        |
+        +------------------------------+
+        |                              |
+        v                              v
+Interpolation / mapping           Machine-learning correction
+(gaussian / linear_nd / rbf)      delta = Argo - RTOFS
+        |                              |
+        v                              v
+Seasonal maps, diff maps          corrected = raw RTOFS + predicted delta
+                                       |
+                                       v
+                               2025 corrected seasonal maps
+</pre>
+
+<h2>3. TEOS-10 / GSW OHC and TCHP Calculation</h2>
+<h3>3.1 Core software package</h3>
+<ul>
+  <li><code>gsw</code>: Python Gibbs SeaWater (GSW) implementation of TEOS-10.</li>
+  <li><code>numpy</code>: profile cleaning, interpolation, and trapezoidal integration.</li>
+</ul>
+
+<h3>3.2 Inputs</h3>
+<table>
+  <tr><th>Input</th><th>Meaning</th></tr>
+  <tr><td><code>vertical</code></td><td>Either pressure in dbar (Argo-style) or depth in meters (RTOFS-style).</td></tr>
+  <tr><td><code>temp_c</code></td><td>In-situ temperature profile in degrees Celsius.</td></tr>
+  <tr><td><code>salinity_psu</code></td><td>Practical salinity profile.</td></tr>
+  <tr><td><code>lat, lon</code></td><td>Used in TEOS-10 conversions between pressure, depth, and absolute salinity.</td></tr>
+</table>
+
+<h3>3.3 Main constants and formulas</h3>
+<table>
+  <tr><th>Parameter</th><th>Value</th><th>How it is used</th></tr>
+  <tr><td><code>REF_TEMP_C</code></td><td><code>26.0</code></td><td>Reference isotherm for D26 and OHC/TCHP.</td></tr>
+  <tr><td><code>J_PER_M2_TO_KJ_PER_CM2</code></td><td><code>1 / 1e7</code></td><td>Converts integrated heat from J/m² to kJ/cm².</td></tr>
+</table>
+
+<div class="callout">
+<p><strong>D26 rule.</strong> <code>compute_d26()</code> returns the depth where the profile crosses downward through 26&nbsp;C. If the surface temperature is already below 26&nbsp;C, the function returns <code>None</code> immediately.</p>
+</div>
+
+<p>For valid warm profiles, the code:</p>
+<ul>
+  <li>converts pressure↔depth using <code>gsw.z_from_p</code> or <code>gsw.p_from_z</code>,</li>
+  <li>interpolates the profile to the exact 26&nbsp;C crossing depth,</li>
+  <li>converts practical salinity to absolute salinity with <code>gsw.SA_from_SP</code>,</li>
+  <li>computes density and heat capacity with <code>gsw.rho_t_exact</code> and <code>gsw.cp_t_exact</code>,</li>
+  <li>integrates heat excess <code>(T - 26 C) * rho * cp</code> from the surface to <code>D26</code> using <code>np.trapezoid</code>.</li>
+</ul>
+
+<h3>3.4 Why only warm-water regions show valid OHC/TCHP</h3>
+<p>Raw Argo observations are global. The <em>derived</em> variables <code>D26</code> and <code>TCHP</code> are not. A point only contributes to the OHC/TCHP maps if the upper ocean actually crosses 26&nbsp;C.</p>
+
+<table>
+  <tr><th>2024 seasonal subset</th><th>Raw Argo points</th><th>Raw points with |lat| &gt; 45</th><th>Valid D26/TCHP points</th><th>Valid points with |lat| &gt; 45</th></tr>
+  <tr><td>Winter (JFM)</td><td>38,693</td><td>10,804</td><td>11,133</td><td>0</td></tr>
+  <tr><td>Summer (JAS)</td><td>41,804</td><td>11,456</td><td>14,277</td><td>0</td></tr>
+</table>
+
+<p>Interpretation: there are many Argo profiles outside the equatorial and subtropical warm belt, but they usually do not have surface temperatures above 26&nbsp;C and therefore never produce a valid <code>D26</code> crossing. This is why the final OHC/TCHP maps concentrate in warmer ocean regions.</p>
+
+<h2>4. Interpolation and Argo-RTOFS Comparison Workflow</h2>
+<h3>4.1 Main data products used</h3>
+<ul>
+  <li>Argo-derived TCHP/D26 tables from <code>/data/suramya/argo_cache_hhp/...</code></li>
+  <li>Global RTOFS daily TCHP/D26 fields from <code>/data/suramya/rtofs_global_ohc_fields_2024</code> and <code>..._2025</code></li>
+</ul>
+
+<h3>4.2 Exact-location collocation</h3>
+<p>RTOFS is not compared on its native grid against a separately gridded Argo surface. Instead, RTOFS is first sampled at the exact Argo locations.</p>
+
+<table>
+  <tr><th>Parameter</th><th>Value</th><th>Code effect</th></tr>
+  <tr><td><code>K_NEIGHBORS</code></td><td><code>8</code></td><td>Uses the 8 nearest native RTOFS grid cells around each Argo point.</td></tr>
+  <tr><td>Distance space</td><td>Unit-sphere xyz from lat/lon</td><td><code>cKDTree</code> queries nearest cells after converting lat/lon to 3D unit vectors.</td></tr>
+  <tr><td>Point interpolation</td><td>Inverse-distance-squared</td><td><code>weight = 1 / distance^2</code>, with exact-hit safeguard at <code>distance &lt;= 1e-6</code>.</td></tr>
+</table>
+
+<pre>
+Argo point (lat, lon, date)
+   |
+   v
+Find 8 nearest RTOFS cells on native grid using cKDTree in xyz space
+   |
+   v
+Compute great-circle distance from chord distance on unit sphere
+   |
+   v
+If exact grid hit exists -> use exact value
+Else -> weighted mean with 1 / distance^2
+</pre>
+
+<h3>4.3 Surface rendering methods tested</h3>
+<table>
+  <tr><th>Method</th><th>Library / function</th><th>Main parameters used</th><th>Notes</th></tr>
+  <tr><td>Gaussian</td><td><code>gaussian_interpolate()</code> in <code>seasonal_map_common.py</code></td><td><code>length_scale_km=100</code>, <code>truncation_radius_km=300</code>, optional mask</td><td>Weighted average of nearby observations using a Gaussian kernel.</td></tr>
+  <tr><td>LinearND</td><td><code>scipy.interpolate.LinearNDInterpolator</code></td><td>Optional nearest-observation mask</td><td>Piecewise linear interpolation over scattered points.</td></tr>
+  <tr><td>RBF Gaussian</td><td><code>scipy.interpolate.RBFInterpolator</code></td><td><code>epsilon_km=100</code>, <code>neighbors=64</code>, <code>smoothing=1e-6</code>, optional mask</td><td>Smoother field from local radial-basis interpolation.</td></tr>
+</table>
+
+<h3>4.4 The 100 km mask</h3>
+<p>The 100 km mask is a <strong>support mask</strong>, not a smoothing parameter. It prevents the code from showing values where no collocated observations are sufficiently nearby.</p>
+
+<table>
+  <tr><th>Parameter</th><th>Value</th><th>Definition in code</th></tr>
+  <tr><td><code>MASK_DISTANCE_KM</code></td><td><code>100.0</code></td><td>Grid nodes farther than 100 km from the nearest collocated observation are set to <code>NaN</code>.</td></tr>
+  <tr><td><code>GRID_RES_DEG</code></td><td><code>0.25</code></td><td>Rendered global grid cell centers every 0.25°.</td></tr>
+</table>
+
+<p>The code converts kilometers to unit-sphere chord length:</p>
+<pre>chord_from_km(distance_km) = 2 * sin((distance_km / EarthRadiusKm) / 2)</pre>
+
+<p>That chord threshold is then compared with nearest-neighbor distances in xyz space.</p>
+
+<ul>
+  <li><strong>Gaussian:</strong> grid nodes outside 100 km are skipped after the local-neighbor search.</li>
+  <li><strong>LinearND / RBF:</strong> the field is computed first, then any node whose nearest observation is beyond 100 km is set to <code>NaN</code>.</li>
+</ul>
+
+<div class="callout">
+<p><strong>Interpretation of 100 km.</strong> The mask is there to keep the map honest. It says “only show the interpolated value if at least one real collocated observation is within 100 km.” It does <em>not</em> define how much the method smooths; that role belongs to the Gaussian length scale or RBF epsilon.</p>
+</div>
+
+<h3>4.5 Difference workflows tested</h3>
+<table>
+  <tr><th>Workflow</th><th>Description</th><th>Main script</th></tr>
+  <tr><td>Point-difference then interpolate</td><td>Compute <code>Argo - RTOFS</code> at collocated points first, then interpolate that difference field.</td><td><code>build_rtofs_at_argo_points_2024.py</code> and related early bundle outputs</td></tr>
+  <tr><td>Interpolate surfaces then difference</td><td>Interpolate Argo and RTOFS-at-Argo-locations separately, then subtract the seasonal surfaces.</td><td><code>build_rtofs_at_argo_points_surface_diff_2024.py</code></td></tr>
+  <tr><td>ML-corrected point predictions then interpolate</td><td>Predict corrected RTOFS values at Argo-supported points, then render raw, corrected, and difference maps.</td><td><code>render_ml_corrected_rtofs_2025.py</code></td></tr>
+</table>
+
+<h3>4.6 2024 collocation scope used for seasonal interpolation</h3>
+<ul>
+  <li>Seasonal Argo input rows: <strong>80,497</strong></li>
+  <li>Collocated rows with matching RTOFS dates: <strong>27,316</strong></li>
+  <li>Collocated dates: <strong>61</strong></li>
+  <li>Point sampling method: <strong>inverse-distance-squared from 8 nearest native RTOFS cells</strong></li>
+</ul>
+
+<h2>5. Machine-Learning Correction Schematic</h2>
+<h3>5.1 Training-table design</h3>
+<p>The ML project does not train on rendered images. It trains on the multiyear collocated point table:</p>
+<ul>
+  <li><code>OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025.parquet</code></li>
+  <li>Total collocated rows: <strong>41,347</strong></li>
+  <li>Total dates: <strong>90</strong></li>
+  <li>Finite residual rows per target: <strong>12,543</strong></li>
+</ul>
+
+<h3>5.2 Residual-learning target</h3>
+<pre>
+delta_tchp = Argo_TCHP - RTOFS_TCHP_at_Argo_point
+delta_d26  = Argo_D26  - RTOFS_D26_at_Argo_point
+
+corrected_prediction = raw_RTOFS + predicted_delta
+</pre>
+
+<p>This keeps the model focused on correcting RTOFS rather than rebuilding Argo from scratch.</p>
+
+<h3>5.3 Models tested in the first benchmark</h3>
+<table>
+  <tr><th>Model family</th><th>Code label</th><th>Purpose</th></tr>
+  <tr><td>Raw baseline</td><td><code>raw_rtofs</code></td><td>No ML; direct collocated RTOFS value.</td></tr>
+  <tr><td>Constant residual baseline</td><td><code>mean_delta</code></td><td>Add the mean training residual to raw RTOFS.</td></tr>
+  <tr><td>Linear model</td><td><code>ridge_delta</code></td><td>Simple regularized linear residual model.</td></tr>
+  <tr><td>Tree ensemble</td><td><code>rf_delta</code></td><td>Random forest residual correction.</td></tr>
+  <tr><td>Boosted trees</td><td><code>gbr_delta</code></td><td>Gradient boosting residual correction.</td></tr>
+  <tr><td>Neural network</td><td><code>mlp_delta</code></td><td>Multilayer perceptron residual correction.</td></tr>
+  <tr><td>Gradient-boosted trees</td><td><code>xgb_delta</code></td><td>XGBoost residual correction.</td></tr>
+  <tr><td>Simple fusion</td><td><code>mean_nonlinear_ensemble</code></td><td>Mean of nonlinear model outputs.</td></tr>
+</table>
+
+<h3>5.4 Features frozen for the locked protocol</h3>
+<table>
+  <tr><th>Feature block</th><th>Variables</th></tr>
+  <tr><td>Time</td><td><code>year</code>, <code>month_int</code>, <code>month_sin</code>, <code>month_cos</code>, <code>doy_sin</code>, <code>doy_cos</code></td></tr>
+  <tr><td>Location</td><td><code>lat</code>, <code>lon</code>, <code>abs_lat</code></td></tr>
+  <tr><td>Sampling geometry</td><td><code>nearest_rtofs_grid_distance_km</code></td></tr>
+  <tr><td>Season flags</td><td><code>is_winter_jfm</code>, <code>is_summer_jas</code>, <code>is_other</code></td></tr>
+  <tr><td>Model state</td><td><code>model_interp_tchp_kj_per_cm2</code>, <code>model_interp_d26_m</code></td></tr>
+</table>
+
+<h3>5.5 Locked evaluation protocol</h3>
+<p>The official benchmark note is frozen in <code>OHC/output/ml_benchmarks/locked_protocol_note.md</code>.</p>
+<ul>
+  <li>Split unit: <strong>date</strong></li>
+  <li>Split type: <strong>forward-chaining blocked validation</strong></li>
+  <li>Embargo: <strong>1 date</strong></li>
+  <li>Folds: <strong>3</strong></li>
+  <li>Random row splitting: <strong>explicitly forbidden</strong></li>
+</ul>
+
+<p>This was chosen to reduce leakage from same-day spatial clustering and nearby profiles from the same ocean state appearing in both training and validation.</p>
+
+<h3>5.6 Strongest model currently in use</h3>
+<p>The strongest practical single-model path is XGBoost.</p>
+
+<table>
+  <tr><th>Stage</th><th>Model</th><th>Key hyperparameters</th></tr>
+  <tr><td>Locked baseline rerun</td><td><code>xgb_delta_locked</code></td><td><code>n_estimators=400</code>, <code>max_depth=5</code>, <code>learning_rate=0.05</code>, <code>subsample=0.8</code>, <code>colsample_bytree=0.8</code>, <code>reg_lambda=1.0</code></td></tr>
+  <tr><td>Best year-holdout TCHP</td><td><code>xgb_sweep_best_2024_train_2025_test</code></td><td>Enriched features, inner folds <code>=3</code>, <code>n_estimators=300</code>, <code>max_depth=4</code>, <code>learning_rate=0.03</code>, <code>subsample=0.8</code>, <code>colsample_bytree=0.8</code></td></tr>
+  <tr><td>Best year-holdout D26</td><td><code>xgb_sweep_best_2024_train_2025_test</code></td><td>Base features, inner folds <code>=3</code>, same XGBoost hyperparameters as above</td></tr>
+</table>
+
+<h3>5.7 Enriched feature set used in the sweep</h3>
+<p>Beyond the base feature list, the sweep added:</p>
+<ul>
+  <li>region flags: Atlantic, Indian, Pacific, northern high latitude, southern high latitude</li>
+  <li><code>warm_tchp_flag</code> and <code>warm_d26_flag</code></li>
+  <li>interaction terms: <code>model_tchp_x_abs_lat</code>, <code>model_d26_x_abs_lat</code></li>
+</ul>
+
+<h2>6. Current Performance Summary</h2>
+<h3>6.1 Locked forward-chaining benchmark (OOF)</h3>
+<table>
+  <tr><th>Target</th><th>Model</th><th>MAE</th><th>RMSE</th><th>Correlation</th></tr>
+  <tr><td>D26</td><td>Raw RTOFS</td><td>14.61</td><td>19.86</td><td>0.888</td></tr>
+  <tr><td>D26</td><td>Locked XGBoost</td><td>10.94</td><td>14.71</td><td>0.928</td></tr>
+  <tr><td>TCHP</td><td>Raw RTOFS</td><td>16.26</td><td>22.64</td><td>0.915</td></tr>
+  <tr><td>TCHP</td><td>Locked XGBoost</td><td>11.86</td><td>16.73</td><td>0.944</td></tr>
+</table>
+
+<h3>6.2 Year-holdout train-2024 / test-2025 benchmark</h3>
+<table>
+  <tr><th>Target</th><th>Raw RTOFS MAE</th><th>Best corrected MAE</th><th>Absolute improvement</th></tr>
+  <tr><td>TCHP</td><td>16.17</td><td>11.71</td><td>4.46</td></tr>
+  <tr><td>D26</td><td>14.82</td><td>11.55</td><td>3.28</td></tr>
+</table>
+
+<p>These MAEs are calculated at <strong>collocated point level</strong>, not from the rendered maps. The images are visual products derived from the prediction tables.</p>
+
+<h2>7. How the 2025 ML Maps Are Generated</h2>
+<pre>
+Train sweep-best XGBoost on all eligible 2024 collocated rows
+        |
+        v
+Predict corrected 2025 values at 2025 Argo-supported collocated points
+        |
+        +--> raw_tchp / raw_d26
+        +--> corrected_tchp / corrected_d26
+        +--> delta_raw = Argo - raw RTOFS
+        +--> delta_corrected = Argo - corrected RTOFS
+        |
+        v
+Render winter/summer 2025 maps with:
+  gaussian (masked)
+  linear_nd (masked and nomask)
+  rbf_gaussian (masked and nomask)
+</pre>
+
+<p>That logic is implemented in <code>OHC/render_ml_corrected_rtofs_2025.py</code>. The model label used on the rendered ML figures is <code>XGBoost correction (train 2024 -&gt; test 2025)</code>.</p>
+
+<h2>8. Core Python Packages Used</h2>
+<table>
+  <tr><th>Package</th><th>Why it is used here</th></tr>
+  <tr><td><code>numpy</code></td><td>Numerical arrays, masking, vectorized math, and integration.</td></tr>
+  <tr><td><code>pandas</code></td><td>Tabular collocation tables, filtering, metrics, and CSV/Parquet I/O.</td></tr>
+  <tr><td><code>xarray</code></td><td>Reads global RTOFS NetCDF fields.</td></tr>
+  <tr><td><code>scipy.spatial.cKDTree</code></td><td>Nearest-neighbor lookup in converted xyz coordinates.</td></tr>
+  <tr><td><code>scipy.interpolate.LinearNDInterpolator</code></td><td>Scattered-point linear interpolation.</td></tr>
+  <tr><td><code>scipy.interpolate.RBFInterpolator</code></td><td>Radial-basis interpolation for smoother fields.</td></tr>
+  <tr><td><code>matplotlib</code></td><td>Seasonal point maps, grid maps, and feature-importance figures.</td></tr>
+  <tr><td><code>gsw</code></td><td>TEOS-10/Gibbs SeaWater ocean thermodynamics.</td></tr>
+  <tr><td><code>scikit-learn</code></td><td>Ridge, Random Forest, Gradient Boosting, MLP, preprocessing, and metrics.</td></tr>
+  <tr><td><code>xgboost</code></td><td>Primary strongest residual-correction model.</td></tr>
+  <tr><td><code>shap</code> (optional)</td><td>Post hoc interpretation of the locked XGBoost models.</td></tr>
+</table>
+
+<h2>9. Practical Interpretation for Mentoring / Review</h2>
+<ul>
+  <li>The warm-water restriction in the final maps is a property of the <code>26 C</code> isotherm definition, not a lack of raw Argo coverage.</li>
+  <li>The 100 km mask is a visualization-support threshold to avoid showing interpolation too far from actual observations.</li>
+  <li>The machine-learning correction is currently a <strong>point-collocated residual model</strong>, not a gridded deep-learning model.</li>
+  <li>The current strongest operational path is the <strong>year-holdout XGBoost correction</strong>, trained on 2024 and tested on 2025.</li>
+</ul>
+
+<h2>10. Main Artifacts Referenced in This Report</h2>
+<table>
+  <tr><th>Artifact</th><th>Path</th></tr>
+  <tr><td>Raw Argo distribution summary</td><td><code>OHC/output/argo_raw_2024_distribution/summary_2024_raw_distribution.json</code></td></tr>
+  <tr><td>2024 surface-diff summary</td><td><code>OHC/output/rtofs_at_argo_points_2024_surface_diff/data/summary_2024_winter_summer.json</code></td></tr>
+  <tr><td>Multiyear collocation summary</td><td><code>OHC/output/ml_collocation/data/summary_collocation_2024_2025.json</code></td></tr>
+  <tr><td>Locked protocol note</td><td><code>OHC/output/ml_benchmarks/locked_protocol_note.md</code></td></tr>
+  <tr><td>Locked XGBoost OOF summary</td><td><code>OHC/output/ml_benchmarks/locked_xgb_oof_summary.csv</code></td></tr>
+  <tr><td>Year-holdout sweep best summary</td><td><code>OHC/output/ml_benchmarks/year_holdout_xgb_sweep_best_summary.csv</code></td></tr>
+</table>
+
+<p class="footer">Generated from the current code and outputs under <code>/home/suramya/HHP-Prediction/OHC</code> on 2026-06-04.</p>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "scheme": "train_2024_test_2025",
+  "data_path": "/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025.parquet",
+  "feature_set": [
+    "year",
+    "month_int",
+    "lat",
+    "lon",
+    "abs_lat",
+    "nearest_rtofs_grid_distance_km",
+    "month_sin",
+    "month_cos",
+    "doy_sin",
+    "doy_cos",
+    "is_winter_jfm",
+    "is_summer_jas",
+    "is_other",
+    "model_interp_tchp_kj_per_cm2",
+    "model_interp_d26_m"
+  ],
+  "summary_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/year_holdout_metrics_all.csv"
+}

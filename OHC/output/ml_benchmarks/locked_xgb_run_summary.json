@@ -1,0 +1,6 @@
+{
+  "data_path": "/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025.parquet",
+  "fold_path": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/tabular_benchmark_folds.json",
+  "summary_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/locked_xgb_oof_summary.csv",
+  "note_path": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/locked_protocol_note.md"
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "target": "tchp",
+    "dLON_year_holdout": 0.165,
+    "dLON_tile_group": 0.097,
+    "dLON_platform_group": 0.24,
+    "leaky_lookup (year - tile)": 0.068
+  },
+  {
+    "target": "d26",
+    "dLON_year_holdout": 0.525,
+    "dLON_tile_group": 0.444,
+    "dLON_platform_group": 0.561,
+    "leaky_lookup (year - tile)": 0.081
+  }
+]

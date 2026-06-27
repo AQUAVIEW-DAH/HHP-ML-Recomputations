@@ -1,0 +1,229 @@
+{
+  "results": [
+    {
+      "target": "tchp",
+      "rows": 12543,
+      "feature_importance_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/locked_xgb_feature_importance_tchp.csv",
+      "feature_importance_png": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/figures/locked_xgb_feature_importance_tchp.png",
+      "top_features": [
+        {
+          "target": "tchp",
+          "feature": "abs_lat",
+          "gain": 6818.7265625,
+          "weight": 1295.0
+        },
+        {
+          "target": "tchp",
+          "feature": "lon",
+          "gain": 3000.9521484375,
+          "weight": 1977.0
+        },
+        {
+          "target": "tchp",
+          "feature": "model_interp_d26_m",
+          "gain": 2950.111083984375,
+          "weight": 1481.0
+        },
+        {
+          "target": "tchp",
+          "feature": "model_interp_tchp_kj_per_cm2",
+          "gain": 2364.302734375,
+          "weight": 1861.0
+        },
+        {
+          "target": "tchp",
+          "feature": "lat",
+          "gain": 2330.41552734375,
+          "weight": 1701.0
+        },
+        {
+          "target": "tchp",
+          "feature": "year",
+          "gain": 1992.9678955078125,
+          "weight": 220.0
+        },
+        {
+          "target": "tchp",
+          "feature": "month_sin",
+          "gain": 1872.1036376953125,
+          "weight": 69.0
+        },
+        {
+          "target": "tchp",
+          "feature": "is_other",
+          "gain": 1679.3790283203125,
+          "weight": 45.0
+        },
+        {
+          "target": "tchp",
+          "feature": "doy_cos",
+          "gain": 1629.2894287109375,
+          "weight": 694.0
+        },
+        {
+          "target": "tchp",
+          "feature": "month_cos",
+          "gain": 1401.0628662109375,
+          "weight": 97.0
+        }
+      ],
+      "shap_summary_png": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/figures/locked_xgb_shap_summary_tchp.png",
+      "shap_importance_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/locked_xgb_shap_importance_tchp.csv",
+      "top_shap_features": [
+        {
+          "feature": "abs_lat",
+          "mean_abs_shap": 7.268935680389404
+        },
+        {
+          "feature": "model_interp_tchp_kj_per_cm2",
+          "mean_abs_shap": 3.97590708732605
+        },
+        {
+          "feature": "model_interp_d26_m",
+          "mean_abs_shap": 3.5335330963134766
+        },
+        {
+          "feature": "lon",
+          "mean_abs_shap": 3.202209711074829
+        },
+        {
+          "feature": "lat",
+          "mean_abs_shap": 2.551302671432495
+        },
+        {
+          "feature": "doy_sin",
+          "mean_abs_shap": 0.7641972303390503
+        },
+        {
+          "feature": "doy_cos",
+          "mean_abs_shap": 0.5672964453697205
+        },
+        {
+          "feature": "year",
+          "mean_abs_shap": 0.4633480906486511
+        },
+        {
+          "feature": "nearest_rtofs_grid_distance_km",
+          "mean_abs_shap": 0.40435290336608887
+        },
+        {
+          "feature": "month_int",
+          "mean_abs_shap": 0.3861067295074463
+        }
+      ]
+    },
+    {
+      "target": "d26",
+      "rows": 12543,
+      "feature_importance_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/locked_xgb_feature_importance_d26.csv",
+      "feature_importance_png": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/figures/locked_xgb_feature_importance_d26.png",
+      "top_features": [
+        {
+          "target": "d26",
+          "feature": "abs_lat",
+          "gain": 5412.39794921875,
+          "weight": 1251.0
+        },
+        {
+          "target": "d26",
+          "feature": "lon",
+          "gain": 2349.08349609375,
+          "weight": 2097.0
+        },
+        {
+          "target": "d26",
+          "feature": "model_interp_d26_m",
+          "gain": 2084.907470703125,
+          "weight": 1572.0
+        },
+        {
+          "target": "d26",
+          "feature": "lat",
+          "gain": 2080.20361328125,
+          "weight": 1739.0
+        },
+        {
+          "target": "d26",
+          "feature": "model_interp_tchp_kj_per_cm2",
+          "gain": 2032.4381103515625,
+          "weight": 1508.0
+        },
+        {
+          "target": "d26",
+          "feature": "month_sin",
+          "gain": 1631.65771484375,
+          "weight": 97.0
+        },
+        {
+          "target": "d26",
+          "feature": "is_other",
+          "gain": 1390.8677978515625,
+          "weight": 54.0
+        },
+        {
+          "target": "d26",
+          "feature": "month_cos",
+          "gain": 1287.9991455078125,
+          "weight": 110.0
+        },
+        {
+          "target": "d26",
+          "feature": "month_int",
+          "gain": 1282.974853515625,
+          "weight": 236.0
+        },
+        {
+          "target": "d26",
+          "feature": "doy_sin",
+          "gain": 1268.2969970703125,
+          "weight": 909.0
+        }
+      ],
+      "shap_summary_png": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/figures/locked_xgb_shap_summary_d26.png",
+      "shap_importance_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/locked_xgb_shap_importance_d26.csv",
+      "top_shap_features": [
+        {
+          "feature": "abs_lat",
+          "mean_abs_shap": 6.579614162445068
+        },
+        {
+          "feature": "lon",
+          "mean_abs_shap": 4.580099105834961
+        },
+        {
+          "feature": "model_interp_d26_m",
+          "mean_abs_shap": 2.5171351432800293
+        },
+        {
+          "feature": "lat",
+          "mean_abs_shap": 2.491793394088745
+        },
+        {
+          "feature": "model_interp_tchp_kj_per_cm2",
+          "mean_abs_shap": 1.743733286857605
+        },
+        {
+          "feature": "doy_sin",
+          "mean_abs_shap": 0.6062462329864502
+        },
+        {
+          "feature": "doy_cos",
+          "mean_abs_shap": 0.5824742913246155
+        },
+        {
+          "feature": "nearest_rtofs_grid_distance_km",
+          "mean_abs_shap": 0.5147138833999634
+        },
+        {
+          "feature": "year",
+          "mean_abs_shap": 0.4664441645145416
+        },
+        {
+          "feature": "month_int",
+          "mean_abs_shap": 0.21412557363510132
+        }
+      ]
+    }
+  ],
+  "shap_available": true
+}

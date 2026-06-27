@@ -1,0 +1,285 @@
+{
+  "data_path": "/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025_physics.parquet",
+  "rows_total": 41347,
+  "feature_feature_corr_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/rtofs_global_physics_feature_feature_corr.csv",
+  "targets": {
+    "tchp": {
+      "target_col": "delta_tchp_kj_per_cm2",
+      "corr_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/rtofs_global_physics_corr_tchp.csv",
+      "vif_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/rtofs_global_physics_vif_tchp.csv",
+      "top_corr_features": [
+        {
+          "feature": "abs_lat",
+          "rows": 12543,
+          "pearson_r": -0.3791809840019775,
+          "spearman_r": -0.4289088026535269,
+          "abs_pearson_r": 0.3791809840019775,
+          "abs_spearman_r": 0.4289088026535269
+        },
+        {
+          "feature": "model_interp_d26_m",
+          "rows": 12543,
+          "pearson_r": 0.2771450500169223,
+          "spearman_r": 0.34047817833150235,
+          "abs_pearson_r": 0.2771450500169223,
+          "abs_spearman_r": 0.34047817833150235
+        },
+        {
+          "feature": "model_temp_excess_x_abs_lat",
+          "rows": 12543,
+          "pearson_r": -0.3245028997102975,
+          "spearman_r": -0.3030088481065975,
+          "abs_pearson_r": 0.3245028997102975,
+          "abs_spearman_r": 0.3030088481065975
+        },
+        {
+          "feature": "lat",
+          "rows": 12543,
+          "pearson_r": -0.21014724804153798,
+          "spearman_r": -0.2685888955806707,
+          "abs_pearson_r": 0.21014724804153798,
+          "abs_spearman_r": 0.2685888955806707
+        },
+        {
+          "feature": "d26_minus_sblt_m",
+          "rows": 12543,
+          "pearson_r": 0.22779857027336525,
+          "spearman_r": 0.25558941359825704,
+          "abs_pearson_r": 0.22779857027336525,
+          "abs_spearman_r": 0.25558941359825704
+        },
+        {
+          "feature": "model_interp_tchp_kj_per_cm2",
+          "rows": 12543,
+          "pearson_r": 0.20153200888521092,
+          "spearman_r": 0.2317798847807535,
+          "abs_pearson_r": 0.20153200888521092,
+          "abs_spearman_r": 0.2317798847807535
+        },
+        {
+          "feature": "warm_layer_thickness_positive_m",
+          "rows": 12543,
+          "pearson_r": 0.20000790235272697,
+          "spearman_r": 0.2080901670583506,
+          "abs_pearson_r": 0.20000790235272697,
+          "abs_spearman_r": 0.2080901670583506
+        },
+        {
+          "feature": "d26_minus_mlt_m",
+          "rows": 12543,
+          "pearson_r": 0.199071245608994,
+          "spearman_r": 0.20808833421708628,
+          "abs_pearson_r": 0.199071245608994,
+          "abs_spearman_r": 0.20808833421708628
+        },
+        {
+          "feature": "model_mlt_x_abs_lat",
+          "rows": 12543,
+          "pearson_r": -0.1823875012379485,
+          "spearman_r": -0.1995645415899738,
+          "abs_pearson_r": 0.1823875012379485,
+          "abs_spearman_r": 0.1995645415899738
+        },
+        {
+          "feature": "model_mixed_layer_thickness_m",
+          "rows": 12543,
+          "pearson_r": 0.1333285870453261,
+          "spearman_r": 0.186206300733142,
+          "abs_pearson_r": 0.1333285870453261,
+          "abs_spearman_r": 0.186206300733142
+        }
+      ],
+      "top_vif_features": [
+        {
+          "feature": "model_surface_boundary_layer_thickness_m",
+          "vif": Infinity,
+          "rows": 12814
+        },
+        {
+          "feature": "model_surface_temp_c",
+          "vif": Infinity,
+          "rows": 12814
+        },
+        {
+          "feature": "model_interp_d26_m",
+          "vif": Infinity,
+          "rows": 12814
+        },
+        {
+          "feature": "model_temp_excess_26c",
+          "vif": Infinity,
+          "rows": 12814
+        },
+        {
+          "feature": "d26_minus_mlt_m",
+          "vif": Infinity,
+          "rows": 12814
+        },
+        {
+          "feature": "d26_minus_sblt_m",
+          "vif": Infinity,
+          "rows": 12814
+        },
+        {
+          "feature": "model_mixed_layer_thickness_m",
+          "vif": Infinity,
+          "rows": 12814
+        },
+        {
+          "feature": "warm_layer_thickness_positive_m",
+          "vif": 141.8051899004917,
+          "rows": 12814
+        },
+        {
+          "feature": "model_interp_tchp_kj_per_cm2",
+          "vif": 15.947496216133967,
+          "rows": 12814
+        },
+        {
+          "feature": "abs_lat",
+          "vif": 10.625469907712159,
+          "rows": 12814
+        }
+      ]
+    },
+    "d26": {
+      "target_col": "delta_d26_m",
+      "corr_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/rtofs_global_physics_corr_d26.csv",
+      "vif_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/rtofs_global_physics_vif_d26.csv",
+      "top_corr_features": [
+        {
+          "feature": "abs_lat",
+          "rows": 12543,
+          "pearson_r": -0.3323533509068841,
+          "spearman_r": -0.36391403457570554,
+          "abs_pearson_r": 0.3323533509068841,
+          "abs_spearman_r": 0.36391403457570554
+        },
+        {
+          "feature": "model_temp_excess_x_abs_lat",
+          "rows": 12543,
+          "pearson_r": -0.2902203092568365,
+          "spearman_r": -0.3064314134355597,
+          "abs_pearson_r": 0.2902203092568365,
+          "abs_spearman_r": 0.3064314134355597
+        },
+        {
+          "feature": "model_interp_d26_m",
+          "rows": 12543,
+          "pearson_r": 0.17287276575427193,
+          "spearman_r": 0.23744372952203902,
+          "abs_pearson_r": 0.17287276575427193,
+          "abs_spearman_r": 0.23744372952203902
+        },
+        {
+          "feature": "lat",
+          "rows": 12543,
+          "pearson_r": -0.17700982014844094,
+          "spearman_r": -0.22806954256982526,
+          "abs_pearson_r": 0.17700982014844094,
+          "abs_spearman_r": 0.22806954256982526
+        },
+        {
+          "feature": "model_mlt_x_abs_lat",
+          "rows": 12543,
+          "pearson_r": -0.15384078141549384,
+          "spearman_r": -0.16986244707018333,
+          "abs_pearson_r": 0.15384078141549384,
+          "abs_spearman_r": 0.16986244707018333
+        },
+        {
+          "feature": "d26_minus_sblt_m",
+          "rows": 12543,
+          "pearson_r": 0.1340936823095947,
+          "spearman_r": 0.16841288405880075,
+          "abs_pearson_r": 0.1340936823095947,
+          "abs_spearman_r": 0.16841288405880075
+        },
+        {
+          "feature": "model_mixed_layer_thickness_m",
+          "rows": 12543,
+          "pearson_r": 0.1339154890741079,
+          "spearman_r": 0.1572692170166985,
+          "abs_pearson_r": 0.1339154890741079,
+          "abs_spearman_r": 0.1572692170166985
+        },
+        {
+          "feature": "model_ssh_m",
+          "rows": 12543,
+          "pearson_r": 0.1270785512866458,
+          "spearman_r": 0.13543715245800828,
+          "abs_pearson_r": 0.1270785512866458,
+          "abs_spearman_r": 0.13543715245800828
+        },
+        {
+          "feature": "model_interp_tchp_kj_per_cm2",
+          "rows": 12543,
+          "pearson_r": 0.08750071355170479,
+          "spearman_r": 0.11230030409034357,
+          "abs_pearson_r": 0.08750071355170479,
+          "abs_spearman_r": 0.11230030409034357
+        },
+        {
+          "feature": "warm_layer_thickness_positive_m",
+          "rows": 12543,
+          "pearson_r": 0.10114757829699506,
+          "spearman_r": 0.1120310012482303,
+          "abs_pearson_r": 0.10114757829699506,
+          "abs_spearman_r": 0.1120310012482303
+        }
+      ],
+      "top_vif_features": [
+        {
+          "feature": "model_surface_boundary_layer_thickness_m",
+          "vif": Infinity,
+          "rows": 12814
+        },
+        {
+          "feature": "model_surface_temp_c",
+          "vif": Infinity,
+          "rows": 12814
+        },
+        {
+          "feature": "model_interp_d26_m",
+          "vif": Infinity,
+          "rows": 12814
+        },
+        {
+          "feature": "model_temp_excess_26c",
+          "vif": Infinity,
+          "rows": 12814
+        },
+        {
+          "feature": "d26_minus_mlt_m",
+          "vif": Infinity,
+          "rows": 12814
+        },
+        {
+          "feature": "d26_minus_sblt_m",
+          "vif": Infinity,
+          "rows": 12814
+        },
+        {
+          "feature": "model_mixed_layer_thickness_m",
+          "vif": Infinity,
+          "rows": 12814
+        },
+        {
+          "feature": "warm_layer_thickness_positive_m",
+          "vif": 141.8051899004917,
+          "rows": 12814
+        },
+        {
+          "feature": "model_interp_tchp_kj_per_cm2",
+          "vif": 15.947496216133967,
+          "rows": 12814
+        },
+        {
+          "feature": "abs_lat",
+          "vif": 10.625469907712159,
+          "rows": 12814
+        }
+      ]
+    }
+  }
+}

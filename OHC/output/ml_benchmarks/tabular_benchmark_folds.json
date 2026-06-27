@@ -1,0 +1,37 @@
+{
+  "n_dates_total": 90,
+  "embargo_dates": 1,
+  "n_folds": 3,
+  "folds": [
+    {
+      "fold": 1,
+      "train_date_count": 30,
+      "val_date_count": 20,
+      "embargo_date_count": 1,
+      "train_start": "20240131",
+      "train_end": "20240710",
+      "val_start": "20240715",
+      "val_end": "20240909"
+    },
+    {
+      "fold": 2,
+      "train_date_count": 51,
+      "val_date_count": 20,
+      "embargo_date_count": 1,
+      "train_start": "20240131",
+      "train_end": "20240909",
+      "val_start": "20240914",
+      "val_end": "20250226"
+    },
+    {
+      "fold": 3,
+      "train_date_count": 72,
+      "val_date_count": 17,
+      "embargo_date_count": 1,
+      "train_start": "20240131",
+      "train_end": "20250226",
+      "val_start": "20250514",
+      "val_end": "20250831"
+    }
+  ]
+}

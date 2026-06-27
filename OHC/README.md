@@ -42,6 +42,11 @@ where `D26` is the depth of the 26 C isotherm.
 - `build_monthly_ohc_pairs.py`: sampled monthly Argo-vs-RTOFS collocation builder
 - `make_monthly_ohc_report.py`: plot generation + LaTeX PDF report
 
+## Working Docs
+
+- `context.md`: durable HHP/OHC project context and workflow summary
+- `NEXT_SESSION_HANDOFF.md`: current restart note for the next coding session
+
 ## Monthly Comparison Workflow
 
 The monthly comparison currently uses a practical sampled-date strategy:

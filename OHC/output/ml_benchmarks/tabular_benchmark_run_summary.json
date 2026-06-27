@@ -1,0 +1,21 @@
+{
+  "data_path": "/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025.parquet",
+  "output_dir": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks",
+  "models_attempted": [
+    "raw_rtofs",
+    "mean_delta",
+    "ridge_delta",
+    "rf_delta",
+    "gbr_delta",
+    "mlp_delta",
+    "xgb_delta",
+    "mean_nonlinear_ensemble"
+  ],
+  "targets": [
+    "tchp",
+    "d26"
+  ],
+  "fold_note_path": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/tabular_benchmark_folds.json",
+  "summary_csv": "/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks/tabular_metrics_oof_summary.csv",
+  "xgboost_available": true
+}

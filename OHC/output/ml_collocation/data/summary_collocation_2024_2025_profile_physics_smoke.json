@@ -1,0 +1,47 @@
+{
+  "input_path": "/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025.parquet",
+  "output_path": "OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025_profile_physics_smoke.parquet",
+  "rows_total": 41347,
+  "dates_requested": 1,
+  "dates_processed": 1,
+  "feature_availability": {
+    "model_steric_0_1000_m": {
+      "finite_rows": 371
+    },
+    "model_steric_0_2000_m": {
+      "finite_rows": 355
+    },
+    "model_steric_1000_ref2000_m": {
+      "finite_rows": 355
+    },
+    "model_n2_mean_upper200_s2": {
+      "finite_rows": 381
+    },
+    "model_n2_max_upper200_s2": {
+      "finite_rows": 381
+    },
+    "model_n2_mean_to_d26_s2": {
+      "finite_rows": 122
+    },
+    "model_n2_max_to_d26_s2": {
+      "finite_rows": 122
+    }
+  },
+  "status_path": "OHC/output/ml_collocation/data/summary_collocation_2024_2025_profile_physics_smoke_dates.json",
+  "statuses": [
+    {
+      "date": "20240313",
+      "status": "processed",
+      "rows": 381,
+      "finite": {
+        "model_steric_0_1000_m": 371,
+        "model_steric_0_2000_m": 355,
+        "model_steric_1000_ref2000_m": 355,
+        "model_n2_mean_upper200_s2": 381,
+        "model_n2_max_upper200_s2": 381,
+        "model_n2_mean_to_d26_s2": 122,
+        "model_n2_max_to_d26_s2": 122
+      }
+    }
+  ]
+}
