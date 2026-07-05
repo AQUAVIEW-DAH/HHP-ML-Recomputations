@@ -86,6 +86,31 @@ The global-cache path now used by the archive helpers is:
 
 - `RTOFS_GLOBAL_CACHE_DIR = /data/suramya/rtofs_global_cache`
 
+### 3.3 Current calendar caveat for the 2024-2025 ML base table
+
+This is important enough to treat as durable context:
+
+- the upstream Argo-derived global tables already have broad/full calendar coverage for 2024 and 2025,
+- but the reduced daily global RTOFS TCHP/D26 field cache currently does not.
+
+As a result, the current point-collocation table is calendar-limited by the
+RTOFS reduced-field inventory, not by Argo availability.
+
+Confirmed state at the time of this note:
+
+- Argo 2024 cache spans `20240101 -> 20241231`
+- Argo 2025 cache spans `20250101 -> 20251231`
+- current reduced global RTOFS field coverage starts at `20240131`
+
+Working interpretation:
+
+- for the public global archive path currently used by `ml/sources/rtofs_global_source.py`,
+  `2024-01-31` is the practical starting date for backfill in this workflow
+  unless a new source or mirror is introduced.
+- missing month blocks in gallery heatmaps are therefore a base-table coverage issue,
+  and downstream feature sheets should not be over-interpreted as full-calendar
+  seasonal diagnostics until the reduced RTOFS field cache is backfilled.
+
 ## 4. Training/evaluation tables
 
 Current main table family:

@@ -86,6 +86,26 @@ New presentation-style outputs:
 
 These are observed-vs-model 2D histograms with color = `log10(PDF)`.
 
+### 2.4 Base-calendar caveat now confirmed
+
+The current 2024-2025 collocation table is not limited by Argo calendar coverage.
+It is limited by the reduced daily global RTOFS TCHP/D26 field cache.
+
+Confirmed inventory:
+
+- Argo 2024 cache already spans the full year
+- Argo 2025 cache already spans the full year
+- reduced global RTOFS daily fields currently start at `20240131`
+
+So for current backfill work, treat `2024-01-31` as the practical public-archive
+start date in this workflow.
+
+Consequence:
+
+- white month blocks in the feature-gallery heatmaps mainly reflect missing
+  base collocation rows from incomplete reduced RTOFS field coverage
+- steric / Brunt-Vaisala profile-feature sparsity sits on top of that separate issue
+
 ## 3. Immediate next tasks
 
 ### 3.1 Highest-priority plotting follow-up

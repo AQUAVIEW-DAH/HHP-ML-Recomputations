@@ -257,12 +257,55 @@ def _density_image(x: np.ndarray, y: np.ndarray, *, xlim: tuple[float, float], y
     return log_pdf.T, x_edges, y_edges
 
 
-def _plot_density_panel(ax, x: np.ndarray, y: np.ndarray, *, title: str, xlabel: str, ylabel: str, bins: int = PDF_BINS):
-    xlim, ylim = _common_axis_limits(x, y, y)
+def _density_color_limits(*imgs: np.ndarray) -> tuple[float, float]:
+    occupied = []
+    for img in imgs:
+        vals = img[np.isfinite(img)]
+        if vals.size:
+            occupied.append(vals)
+    if not occupied:
+        return -1.0, 0.0
+    merged = np.concatenate(occupied)
+    vmin = float(np.nanmin(merged))
+    vmax = float(np.nanmax(merged))
+    if not np.isfinite(vmin) or not np.isfinite(vmax):
+        return -1.0, 0.0
+    if np.isclose(vmin, vmax):
+        pad = 0.25
+        return vmin - pad, vmax + pad
+    pad = 0.03 * (vmax - vmin)
+    return vmin - pad, vmax + pad
+
+
+def _plot_density_panel(
+    ax,
+    x: np.ndarray,
+    y: np.ndarray,
+    *,
+    title: str,
+    xlabel: str,
+    ylabel: str,
+    bins: int = PDF_BINS,
+    xlim: tuple[float, float] | None = None,
+    ylim: tuple[float, float] | None = None,
+    color_limits: tuple[float, float] | None = None,
+):
+    if xlim is None or ylim is None:
+        xlim, ylim = _common_axis_limits(x, y, y)
     img, x_edges, y_edges = _density_image(x, y, xlim=xlim, ylim=ylim, bins=bins)
     cmap = plt.get_cmap("turbo").copy()
     cmap.set_bad("white")
-    mesh = ax.pcolormesh(x_edges, y_edges, img, shading="auto", cmap=cmap, vmin=-6.0, vmax=-1.5)
+    if color_limits is None:
+        color_limits = _density_color_limits(img)
+    mesh = ax.pcolormesh(
+        x_edges,
+        y_edges,
+        img,
+        shading="auto",
+        cmap=cmap,
+        vmin=color_limits[0],
+        vmax=color_limits[1],
+    )
     ax.plot(xlim, xlim, linestyle="--", color="black", linewidth=1.0, alpha=0.9)
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
@@ -274,7 +317,7 @@ def _plot_density_panel(ax, x: np.ndarray, y: np.ndarray, *, title: str, xlabel:
         f"Corr={m['corr']:.2f}, Slope={m['slope']:.2f}, n={m['rows']}"
     )
     ax.grid(True, alpha=0.15, linewidth=0.4)
-    return mesh, m
+    return mesh, m, img
 
 
 def _plot_global_density(target: TargetConfig, df: pd.DataFrame, out_path: Path, metrics_rows: list[dict]) -> None:
@@ -282,18 +325,28 @@ def _plot_global_density(target: TargetConfig, df: pd.DataFrame, out_path: Path,
     obs = df[target.obs_col].to_numpy(float)
     raw = df[target.raw_col].to_numpy(float)
     corr = df[target.corrected_col].to_numpy(float)
+    xlim, ylim = _common_axis_limits(obs, raw, corr)
+    raw_img, _, _ = _density_image(obs, raw, xlim=xlim, ylim=ylim)
+    corr_img, _, _ = _density_image(obs, corr, xlim=xlim, ylim=ylim)
+    color_limits = _density_color_limits(raw_img, corr_img)
 
-    mesh, m_raw = _plot_density_panel(
+    mesh, m_raw, _ = _plot_density_panel(
         axes[0], obs, raw,
         title=f"{target.short_label}: observed vs raw RTOFS",
         xlabel=f"Observed {target.short_label} ({target.units})",
         ylabel=f"Raw RTOFS {target.short_label} ({target.units})",
+        xlim=xlim,
+        ylim=ylim,
+        color_limits=color_limits,
     )
-    _, m_corr = _plot_density_panel(
+    _, m_corr, _ = _plot_density_panel(
         axes[1], obs, corr,
         title=f"{target.short_label}: observed vs corrected ({target.corrected_label})",
         xlabel=f"Observed {target.short_label} ({target.units})",
         ylabel=f"Corrected {target.short_label} ({target.units})",
+        xlim=xlim,
+        ylim=ylim,
+        color_limits=color_limits,
     )
     cbar = fig.colorbar(mesh, ax=axes.ravel().tolist(), shrink=0.92, pad=0.02)
     cbar.set_label("log10(PDF)")
@@ -319,11 +372,20 @@ def _plot_presentation_density(
     fig, ax = plt.subplots(1, 1, figsize=(9.5, 7.6), constrained_layout=True)
     obs = df[target.obs_col].to_numpy(float)
     pred = df[y_col].to_numpy(float)
-    mesh, m = _plot_density_panel(
+    raw = df[target.raw_col].to_numpy(float)
+    corr = df[target.corrected_col].to_numpy(float)
+    xlim, ylim = _common_axis_limits(obs, raw, corr)
+    raw_img, _, _ = _density_image(obs, raw, xlim=xlim, ylim=ylim)
+    corr_img, _, _ = _density_image(obs, corr, xlim=xlim, ylim=ylim)
+    color_limits = _density_color_limits(raw_img, corr_img)
+    mesh, m, _ = _plot_density_panel(
         ax, obs, pred,
         title="",
         xlabel=f"Observed {target.short_label} ({target.units})",
         ylabel=f"{label} {target.short_label} ({target.units})",
+        xlim=xlim,
+        ylim=ylim,
+        color_limits=color_limits,
     )
     ax.set_title(
         f"{target.short_label} observed vs. {label}\n"
@@ -354,17 +416,27 @@ def _plot_region_density(target: TargetConfig, df: pd.DataFrame, out_path: Path,
         raw = sub[target.raw_col].to_numpy(float)
         corr = sub[target.corrected_col].to_numpy(float)
         region_name = REGION_DISPLAY[region]
-        mesh, m_raw = _plot_density_panel(
+        xlim, ylim = _common_axis_limits(obs, raw, corr)
+        raw_img, _, _ = _density_image(obs, raw, xlim=xlim, ylim=ylim)
+        corr_img, _, _ = _density_image(obs, corr, xlim=xlim, ylim=ylim)
+        color_limits = _density_color_limits(raw_img, corr_img)
+        mesh, m_raw, _ = _plot_density_panel(
             axes[i, 0], obs, raw,
             title=f"{region_name}: observed vs raw",
             xlabel=f"Observed {target.short_label} ({target.units})",
             ylabel=f"Raw RTOFS {target.short_label} ({target.units})",
+            xlim=xlim,
+            ylim=ylim,
+            color_limits=color_limits,
         )
-        _, m_corr = _plot_density_panel(
+        _, m_corr, _ = _plot_density_panel(
             axes[i, 1], obs, corr,
             title=f"{region_name}: observed vs corrected",
             xlabel=f"Observed {target.short_label} ({target.units})",
             ylabel=f"Corrected {target.short_label} ({target.units})",
+            xlim=xlim,
+            ylim=ylim,
+            color_limits=color_limits,
         )
         for model_name, m in [("raw_rtofs", m_raw), (target.corrected_label, m_corr)]:
             row = {"target": target.name, "scope": "region", "subset": region, "model": model_name}
@@ -466,17 +538,27 @@ def _plot_top_patch_density(target: TargetConfig, df: pd.DataFrame, patch_df: pd
         corr = g[target.corrected_col].to_numpy(float)
         region_name = REGION_DISPLAY[region]
         patch_title = f"{best['patch_label']}, n={int(best['rows'])}, dates={int(best['dates'])}"
-        mesh, m_raw = _plot_density_panel(
+        xlim, ylim = _common_axis_limits(obs, raw, corr)
+        raw_img, _, _ = _density_image(obs, raw, xlim=xlim, ylim=ylim)
+        corr_img, _, _ = _density_image(obs, corr, xlim=xlim, ylim=ylim)
+        color_limits = _density_color_limits(raw_img, corr_img)
+        mesh, m_raw, _ = _plot_density_panel(
             axes[i, 0], obs, raw,
             title=f"{region_name} top patch: raw\n{patch_title}",
             xlabel=f"Observed {target.short_label} ({target.units})",
             ylabel=f"Raw RTOFS {target.short_label} ({target.units})",
+            xlim=xlim,
+            ylim=ylim,
+            color_limits=color_limits,
         )
-        _, m_corr = _plot_density_panel(
+        _, m_corr, _ = _plot_density_panel(
             axes[i, 1], obs, corr,
             title=f"{region_name} top patch: corrected\n{patch_title}",
             xlabel=f"Observed {target.short_label} ({target.units})",
             ylabel=f"Corrected {target.short_label} ({target.units})",
+            xlim=xlim,
+            ylim=ylim,
+            color_limits=color_limits,
         )
         for model_name, m in [("raw_rtofs", m_raw), (target.corrected_label, m_corr)]:
             row = {"target": target.name, "scope": "top_patch", "subset": best["patch_label"], "macro_region": region, "model": model_name}
