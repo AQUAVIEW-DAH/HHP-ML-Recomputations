@@ -37,9 +37,13 @@ the semi-ablation pass.
    same observed-vs-model diagnostic across 4 globe partitions.
 4. 20-degree patch support + top-patch density-scatter:
    use 20° x 20° boxes and select the best-supported patch inside each region.
-5. Error distributions:
+5. Named 20-degree regional boxes:
+   fixed, named boxes in the main tropical-cyclone basins (map + per-box
+   observed-vs-model density scatters). Unlike family 4, the box set does not
+   change with data support, so figures stay comparable across reruns.
+6. Error distributions:
    signed-error PDF and absolute-error CDF.
-6. Feature relations:
+7. Feature relations:
    binned MAE curves vs selected physics features.
 
 ## Macro-region definition
@@ -55,6 +59,20 @@ the semi-ablation pass.
 - longitude start: `floor(lon / 20) * 20`
 - patch label example:
   `lat[0,20) lon[140,160)`
+
+## Named 20-degree boxes
+
+Rows are selected purely by box geometry (independent of the macro-region
+longitude splits):
+
+- `gulf_of_mexico` (Atlantic): Gulf of Mexico & NW Caribbean — `lat[20,40) lon[-100,-80)`
+- `atlantic_mdr` (Atlantic): Atlantic hurricane MDR / E Caribbean — `lat[0,20) lon[-60,-40)`
+- `arabian_sea` (Indian): Arabian Sea — `lat[0,20) lon[60,80)`
+- `bay_of_bengal` (Indian): Bay of Bengal — `lat[0,20) lon[80,100)`
+- `philippine_sea` (West Pacific): Philippine Sea / W Pacific warm pool — `lat[0,20) lon[120,140)`
+- `coral_sea` (South Pacific): Coral Sea — `lat[-20,0) lon[140,160)`
+- `central_eq_pacific` (Central Pacific): Central equatorial N Pacific — `lat[0,20) lon[-180,-160)`
+- `sw_pacific_fiji` (South Pacific): SW Pacific (Fiji sector) — `lat[-20,0) lon[-180,-160)`
 
 ## Density-scatter style
 

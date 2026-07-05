@@ -108,6 +108,35 @@ REGION_DISPLAY = {
 }
 
 
+@dataclass(frozen=True)
+class NamedBox:
+    key: str
+    display: str
+    basin: str
+    lat0: int
+    lon0: int
+
+    @property
+    def patch_label(self) -> str:
+        return _patch_label(self.lat0, self.lon0)
+
+
+# Fixed named 20° boxes for the mentor-requested regional breakdown.
+# Rows are selected purely by box geometry (patch_lat0/patch_lon0), independent
+# of the automatic macro-region assignment, so boxes that straddle the
+# atlantic/indian/pacific longitude splits stay whole.
+NAMED_BOXES = (
+    NamedBox("gulf_of_mexico", "Gulf of Mexico & NW Caribbean", "Atlantic", 20, -100),
+    NamedBox("atlantic_mdr", "Atlantic hurricane MDR / E Caribbean", "Atlantic", 0, -60),
+    NamedBox("arabian_sea", "Arabian Sea", "Indian", 0, 60),
+    NamedBox("bay_of_bengal", "Bay of Bengal", "Indian", 0, 80),
+    NamedBox("philippine_sea", "Philippine Sea / W Pacific warm pool", "West Pacific", 0, 120),
+    NamedBox("coral_sea", "Coral Sea", "South Pacific", -20, 140),
+    NamedBox("central_eq_pacific", "Central equatorial N Pacific", "Central Pacific", 0, -180),
+    NamedBox("sw_pacific_fiji", "SW Pacific (Fiji sector)", "South Pacific", -20, -180),
+)
+
+
 def _canonical_date_str(values: pd.Series) -> pd.Series:
     dt = pd.to_datetime(values, errors="coerce")
     out = dt.dt.strftime("%Y-%m-%d")
@@ -121,6 +150,7 @@ def _ensure_dirs() -> dict[str, Path]:
         "presentation": OUT_DIR / "presentation_density",
         "regions": OUT_DIR / "region_density",
         "patches": OUT_DIR / "patch_density",
+        "named_boxes": OUT_DIR / "named_box_density",
         "errors": OUT_DIR / "error_distributions",
         "features": OUT_DIR / "feature_relations",
         "tables": OUT_DIR / "tables",
@@ -571,6 +601,105 @@ def _plot_top_patch_density(target: TargetConfig, df: pd.DataFrame, patch_df: pd
     plt.close(fig)
 
 
+def _named_box_rows(df: pd.DataFrame, box: NamedBox) -> pd.DataFrame:
+    return df[(df["patch_lat0"] == box.lat0) & (df["patch_lon0"] == box.lon0)]
+
+
+def _plot_named_box_map(target: TargetConfig, df: pd.DataFrame, out_path: Path) -> None:
+    fig, ax = plt.subplots(figsize=(16, 7), constrained_layout=True)
+    add_land_overlay(ax, zorder=2)
+    ax.set_xlim(-180, 180)
+    ax.set_ylim(-80, 80)
+    ax.set_xlabel("Longitude")
+    ax.set_ylabel("Latitude")
+    ax.set_title(f"{target.short_label}: named 20° regional boxes (rows per box)")
+    ax.grid(True, alpha=0.15, linewidth=0.4)
+
+    for box in NAMED_BOXES:
+        n = len(_named_box_rows(df, box))
+        rect = Rectangle(
+            (box.lon0, box.lat0),
+            PATCH_SIZE_DEG,
+            PATCH_SIZE_DEG,
+            facecolor="#2563eb",
+            edgecolor="black",
+            linewidth=1.2,
+            alpha=0.35,
+            zorder=1,
+        )
+        ax.add_patch(rect)
+        ax.text(
+            box.lon0 + PATCH_SIZE_DEG / 2,
+            box.lat0 + PATCH_SIZE_DEG / 2,
+            f"{box.display}\nn={n}",
+            ha="center",
+            va="center",
+            fontsize=8,
+            zorder=3,
+            bbox={"facecolor": "white", "alpha": 0.75, "edgecolor": "none", "pad": 1.5},
+        )
+    fig.savefig(out_path, dpi=180)
+    plt.close(fig)
+
+
+def _plot_named_box_density(target: TargetConfig, df: pd.DataFrame, out_path: Path, metrics_rows: list[dict]) -> None:
+    nrows = len(NAMED_BOXES)
+    fig, axes = plt.subplots(nrows, 2, figsize=(16, 4.9 * nrows), constrained_layout=True)
+    mesh = None
+    for i, box in enumerate(NAMED_BOXES):
+        g = _named_box_rows(df, box)
+        if len(g) < PATCH_MIN_ROWS:
+            for j in range(2):
+                axes[i, j].set_title(f"{box.display}: only {len(g)} rows (<{PATCH_MIN_ROWS})")
+                axes[i, j].axis("off")
+            continue
+        obs = g[target.obs_col].to_numpy(float)
+        raw = g[target.raw_col].to_numpy(float)
+        corr = g[target.corrected_col].to_numpy(float)
+        n_dates = int(g["date"].nunique())
+        box_title = f"{box.patch_label}, n={len(g)}, dates={n_dates}"
+        xlim, ylim = _common_axis_limits(obs, raw, corr)
+        raw_img, _, _ = _density_image(obs, raw, xlim=xlim, ylim=ylim)
+        corr_img, _, _ = _density_image(obs, corr, xlim=xlim, ylim=ylim)
+        color_limits = _density_color_limits(raw_img, corr_img)
+        mesh, m_raw, _ = _plot_density_panel(
+            axes[i, 0], obs, raw,
+            title=f"{box.display} ({box.basin}): raw\n{box_title}",
+            xlabel=f"Observed {target.short_label} ({target.units})",
+            ylabel=f"Raw RTOFS {target.short_label} ({target.units})",
+            xlim=xlim,
+            ylim=ylim,
+            color_limits=color_limits,
+        )
+        _, m_corr, _ = _plot_density_panel(
+            axes[i, 1], obs, corr,
+            title=f"{box.display} ({box.basin}): corrected\n{box_title}",
+            xlabel=f"Observed {target.short_label} ({target.units})",
+            ylabel=f"Corrected {target.short_label} ({target.units})",
+            xlim=xlim,
+            ylim=ylim,
+            color_limits=color_limits,
+        )
+        for model_name, m in [("raw_rtofs", m_raw), (target.corrected_label, m_corr)]:
+            row = {
+                "target": target.name,
+                "scope": "named_box",
+                "subset": box.key,
+                "named_box_display": box.display,
+                "basin": box.basin,
+                "patch_label": box.patch_label,
+                "model": model_name,
+            }
+            row.update(m)
+            metrics_rows.append(row)
+    if mesh is not None:
+        cbar = fig.colorbar(mesh, ax=axes.ravel().tolist(), shrink=0.92, pad=0.01)
+        cbar.set_label("log10(PDF)")
+    fig.suptitle(f"Named 20° regional box density-scatter diagnostics for {target.short_label}", fontsize=16)
+    fig.savefig(out_path, dpi=180)
+    plt.close(fig)
+
+
 def _plot_error_distributions(target: TargetConfig, df: pd.DataFrame, out_path: Path) -> dict[str, str]:
     obs = df[target.obs_col].to_numpy(float)
     raw = df[target.raw_col].to_numpy(float)
@@ -689,6 +818,13 @@ def _load_target_predictions(target: TargetConfig, merged_features: pd.DataFrame
     return out
 
 
+def _named_box_spec_lines() -> str:
+    return "\n".join(
+        f"- `{box.key}` ({box.basin}): {box.display} — `{box.patch_label}`"
+        for box in NAMED_BOXES
+    )
+
+
 def _write_spec_note(paths: dict[str, Path]) -> Path:
     note = f"""# HHP Density-Scatter Diagnostic Spec
 
@@ -729,9 +865,13 @@ the semi-ablation pass.
    same observed-vs-model diagnostic across 4 globe partitions.
 4. 20-degree patch support + top-patch density-scatter:
    use 20° x 20° boxes and select the best-supported patch inside each region.
-5. Error distributions:
+5. Named 20-degree regional boxes:
+   fixed, named boxes in the main tropical-cyclone basins (map + per-box
+   observed-vs-model density scatters). Unlike family 4, the box set does not
+   change with data support, so figures stay comparable across reruns.
+6. Error distributions:
    signed-error PDF and absolute-error CDF.
-6. Feature relations:
+7. Feature relations:
    binned MAE curves vs selected physics features.
 
 ## Macro-region definition
@@ -747,6 +887,13 @@ the semi-ablation pass.
 - longitude start: `floor(lon / 20) * 20`
 - patch label example:
   `lat[0,20) lon[140,160)`
+
+## Named 20-degree boxes
+
+Rows are selected purely by box geometry (independent of the macro-region
+longitude splits):
+
+{_named_box_spec_lines()}
 
 ## Density-scatter style
 
@@ -796,6 +943,8 @@ def main() -> None:
         patch_csv = paths["tables"] / f"{target.name}_patch_metrics.csv"
         patch_map = paths["patches"] / f"{target.name}_patch_support_map.png"
         patch_density = paths["patches"] / f"{target.name}_top_patch_density_scatter.png"
+        named_box_map = paths["named_boxes"] / f"{target.name}_named_box_map.png"
+        named_box_density = paths["named_boxes"] / f"{target.name}_named_box_density_scatter.png"
         error_path = paths["errors"] / f"{target.name}_error_pdf_cdf.png"
         feature_path = paths["features"] / f"{target.name}_feature_binned_mae.png"
         feature_csv = paths["tables"] / f"{target.name}_feature_binned_mae.csv"
@@ -822,6 +971,8 @@ def main() -> None:
         patch_df.to_csv(patch_csv, index=False)
         _plot_patch_support_map(target, patch_df, patch_map)
         _plot_top_patch_density(target, df, patch_df, patch_density, metrics_rows)
+        _plot_named_box_map(target, df, named_box_map)
+        _plot_named_box_density(target, df, named_box_density, metrics_rows)
         error_summary = _plot_error_distributions(target, df, error_path)
         _plot_feature_relations(target, df, feature_path, feature_csv)
 
@@ -833,6 +984,8 @@ def main() -> None:
             "region_density": str(region_path),
             "patch_support_map": str(patch_map),
             "top_patch_density": str(patch_density),
+            "named_box_map": str(named_box_map),
+            "named_box_density": str(named_box_density),
             "patch_metrics_csv": str(patch_csv),
             "error_pdf_cdf": str(error_path),
             "feature_binned_mae": str(feature_path),
