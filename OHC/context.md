@@ -363,6 +363,9 @@ This bundle now includes:
 - 4 macro-region density scatters
 - 20 degree patch support maps
 - top-patch density scatters
+- named fixed 20 degree regional boxes (TC-basin set, added 2026-07-04):
+  location map + per-box raw/corrected density scatters under
+  `named_box_density/`, selected by pure box geometry
 - signed-error PDF and absolute-error CDF
 - feature-binned MAE diagnostics
 
@@ -397,6 +400,6 @@ These are still live and should not be rediscovered from scratch next time:
    - MLD-style log-PDF scatter plots,
    - error/feature relation plots,
    - and broad plot coverage so odd behavior can be traced backward through the pipeline.
-2. The current density diagnostic bundle already adds the MLD-style presentation plots, but not yet the exact mentor-defined named 20 degree regional box selection.
+2. DONE 2026-07-04: the density bundle now includes a fixed named 20 degree box family (8 TC-basin boxes). Still pending: mentor confirmation of the exact box coordinates/names.
 3. Sparse deep-profile features can produce thin support in some diagnostics; this is especially relevant for the deeper steric and Brunt-Vaisala summaries.
 4. The current ML correction is still evaluated only at collocated Argo-supported rows. That is the correct current development regime, but it is not yet a field-level validation of behavior far from floats.

@@ -1,6 +1,42 @@
 # Next Session Handoff
 
-Date: 2026-06-27
+Date: 2026-07-04 (previous: 2026-06-27)
+
+## 0. Update 2026-07-04
+
+### 0.1 Named 20 degree regional boxes now exist
+
+`OHC/build_hhp_density_scatter_diagnostics.py` now renders the mentor-requested
+fixed named 20 degree boxes in addition to the automatic top-supported patches:
+
+- output family: `OHC/output/density_scatter_diagnostics_2024_2025/named_box_density/`
+- per-target box location map + 8-box raw/corrected density scatters
+- metrics rows with `scope = named_box` in `tables/density_scatter_metrics.csv`
+
+The 8 fixed boxes (selected by pure box geometry, independent of the
+macro-region longitude splits): Gulf of Mexico & NW Caribbean, Atlantic
+hurricane MDR / E Caribbean, Arabian Sea, Bay of Bengal, Philippine Sea /
+W Pacific warm pool, Coral Sea, Central equatorial N Pacific, SW Pacific
+(Fiji sector).
+
+The refreshed bundle was synced to Drive as `HHP-scatter-plots-2026-07-04`.
+
+### 0.2 RTOFS reduced-field backfill restarted (was stalled)
+
+The 2026-06-29 backfill died at `rtofs_tchp_20240409.nc` (113 of ~340 files).
+It was relaunched on 2026-07-04 as a detached chained run (2024 remaining
+dates, then all 336 missing 2025 dates):
+
+- wrapper: `/data/suramya/rtofs_backfill_20260704/run_backfill_chain.sh`
+- date lists: `/data/suramya/rtofs_backfill_20260704/remaining_{2024,2025}_dates.txt`
+- logs: `/data/suramya/rtofs_global_ohc_fields_{2024,2025}/run_20260704_backfill.log`
+- completion marker: `/data/suramya/rtofs_backfill_20260704/CHAIN_DONE`
+- settings: `workers=3`, `--cleanup-archv-a`, ~10 min per date per worker
+
+The wrapper is idempotent (already-built dates are skipped), so if it dies
+again just rerun the wrapper. After it finishes: rebuild the collocation
+table (`build_rtofs_at_argo_points_multiyear.py`), then rerun the global and
+profile physics builders for the full calendar.
 
 This note captures where the HHP / OHC work stood at the end of the current session.
 
@@ -110,11 +146,9 @@ Consequence:
 
 ### 3.1 Highest-priority plotting follow-up
 
-Dr. Jacobs still wants the more explicit regional-box view.
-
-Most likely next plotting task:
-
-- add exact named 20 degree boxes in the 4 global regions instead of only using the current automatic top-supported patch selection.
+DONE 2026-07-04: the named 20 degree box family now exists (see section 0.1).
+Remaining plotting follow-up is mentor review of the chosen box set — the 8
+boxes are a TC-basin-oriented default, not yet mentor-confirmed coordinates.
 
 ### 3.2 Diagnostic extension likely worth doing
 
