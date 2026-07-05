@@ -39,8 +39,11 @@ the semi-ablation pass.
    use 20° x 20° boxes and select the best-supported patch inside each region.
 5. Named 20-degree regional boxes:
    fixed, named boxes in the main tropical-cyclone basins (map + per-box
-   observed-vs-model density scatters). Unlike family 4, the box set does not
-   change with data support, so figures stay comparable across reruns.
+   observed-vs-model density scatters + monthly support heatmap). Unlike
+   family 4, the box set does not change with data support, so figures stay
+   comparable across reruns. Blank months in the support heatmap are
+   collocation gaps, currently dominated by missing reduced RTOFS daily
+   fields (see the backfill note in `NEXT_SESSION_HANDOFF.md`).
 6. Error distributions:
    signed-error PDF and absolute-error CDF.
 7. Feature relations:
