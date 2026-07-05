@@ -30,6 +30,7 @@ from OHC.benchmark_rtofs_argo_tabular_models import TARGETS, _build_forward_fold
 BASE_PATH = Path("/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025.parquet")
 GLOBAL_PATH = Path("/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025_physics.parquet")
 PROFILE_PATH = Path("/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025_profile_physics.parquet")
+NEIGHBORHOOD_PATH = Path("/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025_neighborhood.parquet")
 OUT_DIR = Path("/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks")
 FOLD_PATH = OUT_DIR / "tabular_benchmark_folds.json"
 
@@ -63,10 +64,27 @@ GLOBAL_PRUNED = [
     "model_temp_excess_x_abs_lat",
 ]
 
+# Tier-0 spatial regime descriptors (see SPATIAL_FEATURES_DIRECTIONS.md).
+# Local stds / gradients / anomalies only; local means are omitted because they
+# nearly duplicate the point values.
+NEIGHBORHOOD_CORE = [
+    "model_tchp_local_std_1deg",
+    "model_tchp_local_std_2deg",
+    "model_tchp_grad_mag_per_100km",
+    "model_tchp_anom_from_1deg_mean",
+    "model_d26_local_std_1deg",
+    "model_d26_grad_mag_per_100km",
+    "model_d26_anom_from_1deg_mean",
+    "model_sst_local_std_1deg",
+    "model_sst_grad_mag_per_100km",
+    "model_sst_anom_from_1deg_mean",
+]
+
 FEATURE_SETS_BY_TARGET = {
     "tchp": {
         "base": BASE_FEATURES,
         "global_pruned": BASE_FEATURES + GLOBAL_PRUNED,
+        "global_pruned_plus_neighborhood": BASE_FEATURES + GLOBAL_PRUNED + NEIGHBORHOOD_CORE,
         "drop_temp_lat_interaction": BASE_FEATURES + [
             "model_ssh_m",
             "model_mixed_layer_thickness_m",
@@ -122,6 +140,18 @@ FEATURE_SETS_BY_TARGET = {
             "model_n2_max_upper200_s2",
             "model_n2_mean_to_d26_s2",
         ],
+        "drop_both_lat_interactions_plus_neighborhood": BASE_FEATURES + [
+            "model_ssh_m",
+            "model_mixed_layer_thickness_m",
+            "model_surface_boundary_layer_thickness_m",
+            "model_temp_excess_26c",
+            "d26_minus_mlt_m",
+            "d26_to_sblt_ratio",
+            "model_mlt_x_abs_lat",
+            "model_steric_1000_ref2000_m",
+            "model_n2_max_upper200_s2",
+            "model_n2_mean_to_d26_s2",
+        ] + NEIGHBORHOOD_CORE,
         "drop_temp_lat_interaction": BASE_FEATURES + [
             "model_ssh_m",
             "model_mixed_layer_thickness_m",
@@ -191,6 +221,7 @@ def _merge_feature_tables() -> pd.DataFrame:
     base = pd.read_parquet(BASE_PATH).reset_index(drop=True)
     global_df = pd.read_parquet(GLOBAL_PATH).reset_index(drop=True)
     profile_df = pd.read_parquet(PROFILE_PATH).reset_index(drop=True)
+    neighborhood_df = pd.read_parquet(NEIGHBORHOOD_PATH).reset_index(drop=True)
 
     key_cols = [
         "date",
@@ -206,7 +237,7 @@ def _merge_feature_tables() -> pd.DataFrame:
         "delta_tchp_kj_per_cm2",
         "delta_d26_m",
     ]
-    for name, df in [("global", global_df), ("profile", profile_df)]:
+    for name, df in [("global", global_df), ("profile", profile_df), ("neighborhood", neighborhood_df)]:
         if len(df) != len(base):
             raise RuntimeError(f"{name} table length {len(df)} does not match base length {len(base)}")
         for col in key_cols:
@@ -221,7 +252,14 @@ def _merge_feature_tables() -> pd.DataFrame:
 
     extra_global = [c for c in global_df.columns if c not in base.columns]
     extra_profile = [c for c in profile_df.columns if c not in base.columns and c not in extra_global]
-    return pd.concat([base, global_df[extra_global], profile_df[extra_profile]], axis=1)
+    extra_neighborhood = [
+        c for c in neighborhood_df.columns
+        if c not in base.columns and c not in extra_global and c not in extra_profile
+    ]
+    return pd.concat(
+        [base, global_df[extra_global], profile_df[extra_profile], neighborhood_df[extra_neighborhood]],
+        axis=1,
+    )
 
 
 def _add_group_cols(df: pd.DataFrame) -> pd.DataFrame:

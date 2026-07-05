@@ -40,6 +40,22 @@ profile physics builders for the full calendar.
 
 This note captures where the HHP / OHC work stood at the end of the current session.
 
+## 0.3 Update 2026-07-05: spatial features + GOFS side track
+
+- New spatial-feature strategy note: `OHC/SPATIAL_FEATURES_DIRECTIONS.md`
+  (option ladder Tier 0-3, literature, guardrails). Mentor constraint: the main
+  method adds no dependencies beyond RTOFS; anything else is a side exploration
+  under `OHC/exploration/`.
+- Tier 0 neighborhood stencil features are DONE and are the new locked-protocol
+  leaders for both targets (TCHP MAE 11.14, D26 MAE 10.50 — see
+  `SPATIAL_FEATURES_DIRECTIONS.md` section 4.1). Tile-holdout spatial-CV
+  confirmation still pending before promoting them to recommended recipes.
+- GOFS 3.1 reanalysis (1994-2015) pilot download runs under
+  `OHC/exploration/run_gofs31_pilot_2015.sh` into
+  `/data/suramya/gofs31_ohc_fields_2015` (marker `PILOT_DONE`). Follow-up needs
+  an Argo 2015 cache + a GOFS-vs-Argo collocation pass before any cross-model
+  comparison.
+
 ## 1. What was completed recently
 
 ### 1.1 Major HHP code and reporting work now living in the repo

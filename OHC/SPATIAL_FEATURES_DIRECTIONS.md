@@ -119,6 +119,28 @@ filters. Nobody appears to have published ML correction of TCHP/D26 specifically
 Steps 1–2 are worth doing against the current table immediately; rebuild against the
 post-backfill full-calendar table when it lands.
 
+## 4.1 Status update 2026-07-05
+
+- Mentor decision recorded: **main method stays RTOFS-only** (no new data
+  dependencies). Everything beyond Tier 0 therefore runs as an explicit side
+  exploration under `OHC/exploration/` (user decision: try all tiers anyway and
+  compare, clearly marked as side work).
+- **Tier 0 implemented and evaluated**: `build_rtofs_neighborhood_features_2024_2025.py`
+  builds the stencil features (~73 s over 90 dates);
+  `run_locked_xgb_physics_semi_ablation.py` gained `NEIGHBORHOOD_CORE` and two
+  `*_plus_neighborhood` recipes. Locked OOF result: **new best for both targets**
+  - TCHP `global_pruned_plus_neighborhood`: MAE 11.14 (was 11.64), bias -0.09
+  - D26 `drop_both_lat_interactions_plus_neighborhood`: MAE 10.50 (was 10.76), bias -0.16
+  - Still pending: tile-holdout (spatial CV) confirmation per the guardrail
+    before promoting these to the recommended recipes.
+- **HYCOM GOFS 3.1 reanalysis side track** started (`OHC/exploration/`):
+  AWS Open Data bucket `hycom-gofs-3pt1-reanalysis`, 1994-2015 only (NOT a
+  2024+ RTOFS replacement); value = adding ~a decade of Argo-collocatable
+  history. Caveats logged in `exploration/README.md` (different model bias;
+  NCODA assimilates Argo so residuals are not independent). Pilot = 72 dates
+  of 2015 reduced to 2D OHC fields in `/data/suramya/gofs31_ohc_fields_2015`.
+- GPBoost installed into `hhp-env` for the Tier-2 pilot (not yet run).
+
 ## 5. Open decisions for the mentor
 
 - Confirm goal-b (correct-everywhere) still rules: it decides whether RFSI-type
