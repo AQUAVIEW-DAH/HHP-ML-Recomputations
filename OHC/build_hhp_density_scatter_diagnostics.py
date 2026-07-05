@@ -472,8 +472,8 @@ def _plot_region_density(target: TargetConfig, df: pd.DataFrame, out_path: Path,
             row = {"target": target.name, "scope": "region", "subset": region, "model": model_name}
             row.update(m)
             metrics_rows.append(row)
-    cbar = fig.colorbar(mesh, ax=axes.ravel().tolist(), shrink=0.92, pad=0.01)
-    cbar.set_label("log10(PDF)")
+        cbar = fig.colorbar(mesh, ax=[axes[i, 0], axes[i, 1]], shrink=0.9, pad=0.01)
+        cbar.set_label("log10(PDF)")
     fig.suptitle(f"Macro-region density-scatter diagnostics for {target.short_label}", fontsize=16)
     fig.savefig(out_path, dpi=180)
     plt.close(fig)
@@ -594,8 +594,8 @@ def _plot_top_patch_density(target: TargetConfig, df: pd.DataFrame, patch_df: pd
             row = {"target": target.name, "scope": "top_patch", "subset": best["patch_label"], "macro_region": region, "model": model_name}
             row.update(m)
             metrics_rows.append(row)
-    cbar = fig.colorbar(mesh, ax=axes.ravel().tolist(), shrink=0.92, pad=0.01)
-    cbar.set_label("log10(PDF)")
+        cbar = fig.colorbar(mesh, ax=[axes[i, 0], axes[i, 1]], shrink=0.9, pad=0.01)
+        cbar.set_label("log10(PDF)")
     fig.suptitle(f"Top 20° patch density-scatter diagnostics for {target.short_label}", fontsize=16)
     fig.savefig(out_path, dpi=180)
     plt.close(fig)
@@ -692,10 +692,61 @@ def _plot_named_box_density(target: TargetConfig, df: pd.DataFrame, out_path: Pa
             }
             row.update(m)
             metrics_rows.append(row)
-    if mesh is not None:
-        cbar = fig.colorbar(mesh, ax=axes.ravel().tolist(), shrink=0.92, pad=0.01)
+        # One colorbar per row: color limits are per-box, so a single
+        # figure-level colorbar would only be valid for one row.
+        cbar = fig.colorbar(mesh, ax=[axes[i, 0], axes[i, 1]], shrink=0.9, pad=0.01)
         cbar.set_label("log10(PDF)")
     fig.suptitle(f"Named 20° regional box density-scatter diagnostics for {target.short_label}", fontsize=16)
+    fig.savefig(out_path, dpi=180)
+    plt.close(fig)
+
+
+def _plot_named_box_monthly_support(target: TargetConfig, df: pd.DataFrame, out_path: Path, out_csv: Path) -> None:
+    """Heatmap of finite rows per named box per calendar month.
+
+    Blank cells are months with no collocated support. With the current base
+    table those gaps are dominated by missing reduced RTOFS daily fields, not
+    by Argo coverage, so this panel doubles as a backfill progress check.
+    """
+    months = pd.period_range("2024-01", "2025-12", freq="M")
+    month_labels = [str(m) for m in months]
+    counts = np.zeros((len(NAMED_BOXES), len(months)), dtype=int)
+    csv_rows = []
+    for i, box in enumerate(NAMED_BOXES):
+        g = _named_box_rows(df, box)
+        per_month = pd.to_datetime(g["date"]).dt.to_period("M").value_counts()
+        for j, month in enumerate(months):
+            n = int(per_month.get(month, 0))
+            counts[i, j] = n
+            csv_rows.append({
+                "target": target.name,
+                "box": box.key,
+                "box_display": box.display,
+                "month": month_labels[j],
+                "rows": n,
+            })
+    pd.DataFrame(csv_rows).to_csv(out_csv, index=False)
+
+    fig, ax = plt.subplots(figsize=(16, 6.5), constrained_layout=True)
+    masked = np.ma.masked_equal(counts, 0)
+    cmap = plt.get_cmap("viridis").copy()
+    cmap.set_bad("white")
+    mesh = ax.pcolormesh(np.arange(len(months) + 1), np.arange(len(NAMED_BOXES) + 1), masked, cmap=cmap)
+    ax.set_xticks(np.arange(len(months)) + 0.5)
+    ax.set_xticklabels(month_labels, rotation=90, fontsize=8)
+    ax.set_yticks(np.arange(len(NAMED_BOXES)) + 0.5)
+    ax.set_yticklabels([f"{b.display}\n{b.patch_label}" for b in NAMED_BOXES], fontsize=8)
+    ax.invert_yaxis()
+    for i in range(len(NAMED_BOXES)):
+        for j in range(len(months)):
+            if counts[i, j] > 0:
+                ax.text(j + 0.5, i + 0.5, str(counts[i, j]), ha="center", va="center", fontsize=6.5, color="white")
+    cbar = fig.colorbar(mesh, ax=ax, shrink=0.9, pad=0.02)
+    cbar.set_label("finite rows in month")
+    ax.set_title(
+        f"{target.short_label}: monthly collocation support per named 20° box\n"
+        "White months have no collocated rows (currently dominated by missing reduced RTOFS daily fields)"
+    )
     fig.savefig(out_path, dpi=180)
     plt.close(fig)
 
@@ -867,8 +918,11 @@ the semi-ablation pass.
    use 20° x 20° boxes and select the best-supported patch inside each region.
 5. Named 20-degree regional boxes:
    fixed, named boxes in the main tropical-cyclone basins (map + per-box
-   observed-vs-model density scatters). Unlike family 4, the box set does not
-   change with data support, so figures stay comparable across reruns.
+   observed-vs-model density scatters + monthly support heatmap). Unlike
+   family 4, the box set does not change with data support, so figures stay
+   comparable across reruns. Blank months in the support heatmap are
+   collocation gaps, currently dominated by missing reduced RTOFS daily
+   fields (see the backfill note in `NEXT_SESSION_HANDOFF.md`).
 6. Error distributions:
    signed-error PDF and absolute-error CDF.
 7. Feature relations:
@@ -945,6 +999,8 @@ def main() -> None:
         patch_density = paths["patches"] / f"{target.name}_top_patch_density_scatter.png"
         named_box_map = paths["named_boxes"] / f"{target.name}_named_box_map.png"
         named_box_density = paths["named_boxes"] / f"{target.name}_named_box_density_scatter.png"
+        named_box_support = paths["named_boxes"] / f"{target.name}_named_box_monthly_support.png"
+        named_box_support_csv = paths["tables"] / f"{target.name}_named_box_monthly_support.csv"
         error_path = paths["errors"] / f"{target.name}_error_pdf_cdf.png"
         feature_path = paths["features"] / f"{target.name}_feature_binned_mae.png"
         feature_csv = paths["tables"] / f"{target.name}_feature_binned_mae.csv"
@@ -973,6 +1029,7 @@ def main() -> None:
         _plot_top_patch_density(target, df, patch_df, patch_density, metrics_rows)
         _plot_named_box_map(target, df, named_box_map)
         _plot_named_box_density(target, df, named_box_density, metrics_rows)
+        _plot_named_box_monthly_support(target, df, named_box_support, named_box_support_csv)
         error_summary = _plot_error_distributions(target, df, error_path)
         _plot_feature_relations(target, df, feature_path, feature_csv)
 
@@ -986,6 +1043,8 @@ def main() -> None:
             "top_patch_density": str(patch_density),
             "named_box_map": str(named_box_map),
             "named_box_density": str(named_box_density),
+            "named_box_monthly_support": str(named_box_support),
+            "named_box_monthly_support_csv": str(named_box_support_csv),
             "patch_metrics_csv": str(patch_csv),
             "error_pdf_cdf": str(error_path),
             "feature_binned_mae": str(feature_path),
