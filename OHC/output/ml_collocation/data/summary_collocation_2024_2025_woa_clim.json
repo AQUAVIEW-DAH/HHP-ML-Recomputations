@@ -1,0 +1,12 @@
+{
+  "output_path": "/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025_woa_clim.parquet",
+  "rows_total": 322616,
+  "elapsed_s": 59.4,
+  "feature_availability": {
+    "woa_tchp_clim_kj_per_cm2": 80590,
+    "woa_d26_clim_m": 82808,
+    "woa_sst_clim_c": 316275,
+    "model_minus_woa_tchp": 77686,
+    "model_minus_woa_d26": 79810
+  }
+}

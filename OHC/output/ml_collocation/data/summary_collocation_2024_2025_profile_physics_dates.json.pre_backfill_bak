@@ -1,0 +1,100 @@
+[
+  {
+    "date": "20240131",
+    "status": "processed",
+    "rows": 448,
+    "finite": {
+      "model_steric_0_1000_m": 425,
+      "model_steric_0_2000_m": 398,
+      "model_steric_1000_ref2000_m": 398,
+      "model_n2_mean_upper200_s2": 448,
+      "model_n2_max_upper200_s2": 448,
+      "model_n2_mean_to_d26_s2": 125,
+      "model_n2_max_to_d26_s2": 125
+    }
+  },
+  {
+    "date": "20240201",
+    "status": "processed",
+    "rows": 407,
+    "finite": {
+      "model_steric_0_1000_m": 400,
+      "model_steric_0_2000_m": 376,
+      "model_steric_1000_ref2000_m": 376,
+      "model_n2_mean_upper200_s2": 407,
+      "model_n2_max_upper200_s2": 407,
+      "model_n2_mean_to_d26_s2": 95,
+      "model_n2_max_to_d26_s2": 95
+    }
+  },
+  {
+    "date": "20240210",
+    "status": "processed",
+    "rows": 457,
+    "finite": {
+      "model_steric_0_1000_m": 437,
+      "model_steric_0_2000_m": 412,
+      "model_steric_1000_ref2000_m": 412,
+      "model_n2_mean_upper200_s2": 457,
+      "model_n2_max_upper200_s2": 457,
+      "model_n2_mean_to_d26_s2": 130,
+      "model_n2_max_to_d26_s2": 130
+    }
+  },
+  {
+    "date": "20240216",
+    "status": "processed",
+    "rows": 459,
+    "finite": {
+      "model_steric_0_1000_m": 448,
+      "model_steric_0_2000_m": 424,
+      "model_steric_1000_ref2000_m": 424,
+      "model_n2_mean_upper200_s2": 459,
+      "model_n2_max_upper200_s2": 459,
+      "model_n2_mean_to_d26_s2": 145,
+      "model_n2_max_to_d26_s2": 145
+    }
+  },
+  {
+    "date": "20240220",
+    "status": "processed",
+    "rows": 438,
+    "finite": {
+      "model_steric_0_1000_m": 419,
+      "model_steric_0_2000_m": 394,
+      "model_steric_1000_ref2000_m": 394,
+      "model_n2_mean_upper200_s2": 438,
+      "model_n2_max_upper200_s2": 438,
+      "model_n2_mean_to_d26_s2": 135,
+      "model_n2_max_to_d26_s2": 135
+    }
+  },
+  {
+    "date": "20240221",
+    "status": "processed",
+    "rows": 434,
+    "finite": {
+      "model_steric_0_1000_m": 415,
+      "model_steric_0_2000_m": 393,
+      "model_steric_1000_ref2000_m": 393,
+      "model_n2_mean_upper200_s2": 434,
+      "model_n2_max_upper200_s2": 434,
+      "model_n2_mean_to_d26_s2": 108,
+      "model_n2_max_to_d26_s2": 108
+    }
+  },
+  {
+    "date": "20240302",
+    "status": "processed",
+    "rows": 425,
+    "finite": {
+      "model_steric_0_1000_m": 410,
+      "model_steric_0_2000_m": 388,
+      "model_steric_1000_ref2000_m": 388,
+      "model_n2_mean_upper200_s2": 425,
+      "model_n2_max_upper200_s2": 425,
+      "model_n2_mean_to_d26_s2": 110,
+      "model_n2_max_to_d26_s2": 110
+    }
+  }
+]

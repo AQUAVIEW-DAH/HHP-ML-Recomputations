@@ -12,86 +12,103 @@
   "summaries": [
     {
       "label": "2024",
-      "rows_total": 27316,
-      "dates_total": 61,
+      "rows_total": 150531,
+      "dates_total": 336,
       "rows_by_year": {
-        "2024": 27316
+        "2024": 150531
       },
       "rows_by_month": {
         "1": 448,
-        "2": 2195,
-        "3": 5919,
-        "7": 6779,
-        "8": 6069,
-        "9": 5906
+        "2": 12528,
+        "3": 13169,
+        "4": 13087,
+        "5": 13603,
+        "6": 13231,
+        "7": 13925,
+        "8": 14365,
+        "9": 13514,
+        "10": 14152,
+        "11": 13909,
+        "12": 14600
       },
       "rows_by_season": {
-        "summer_jas": 18754,
-        "winter_jfm": 8562
+        "other": 82582,
+        "summer_jas": 41804,
+        "winter_jfm": 26145
       },
-      "finite_argo_tchp_rows": 8948,
-      "finite_argo_d26_rows": 8948,
-      "finite_model_tchp_rows": 8551,
-      "finite_model_d26_rows": 8551,
-      "finite_delta_tchp_rows": 8384,
-      "finite_delta_d26_rows": 8384
+      "finite_argo_tchp_rows": 45171,
+      "finite_argo_d26_rows": 45171,
+      "finite_model_tchp_rows": 43218,
+      "finite_model_d26_rows": 43218,
+      "finite_delta_tchp_rows": 42435,
+      "finite_delta_d26_rows": 42435
     },
     {
       "label": "2025",
-      "rows_total": 14031,
-      "dates_total": 29,
+      "rows_total": 172085,
+      "dates_total": 365,
       "rows_by_year": {
-        "2025": 14031
+        "2025": 172085
       },
       "rows_by_month": {
-        "1": 976,
-        "2": 4370,
-        "5": 2501,
-        "6": 469,
-        "7": 2345,
-        "8": 3370
+        "1": 14282,
+        "2": 13337,
+        "3": 14630,
+        "4": 14490,
+        "5": 15484,
+        "6": 14731,
+        "7": 14725,
+        "8": 14845,
+        "9": 14296,
+        "10": 13949,
+        "11": 13321,
+        "12": 13995
       },
       "rows_by_season": {
-        "other": 2970,
-        "summer_jas": 5715,
-        "winter_jfm": 5346
+        "other": 85970,
+        "summer_jas": 43866,
+        "winter_jfm": 42249
       },
-      "finite_argo_tchp_rows": 4490,
-      "finite_argo_d26_rows": 4490,
-      "finite_model_tchp_rows": 4263,
-      "finite_model_d26_rows": 4263,
-      "finite_delta_tchp_rows": 4159,
-      "finite_delta_d26_rows": 4159
+      "finite_argo_tchp_rows": 51424,
+      "finite_argo_d26_rows": 51424,
+      "finite_model_tchp_rows": 49073,
+      "finite_model_d26_rows": 49073,
+      "finite_delta_tchp_rows": 47988,
+      "finite_delta_d26_rows": 47988
     },
     {
       "label": "2024_2025",
-      "rows_total": 41347,
-      "dates_total": 90,
+      "rows_total": 322616,
+      "dates_total": 701,
       "rows_by_year": {
-        "2024": 27316,
-        "2025": 14031
+        "2024": 150531,
+        "2025": 172085
       },
       "rows_by_month": {
-        "1": 1424,
-        "2": 6565,
-        "3": 5919,
-        "5": 2501,
-        "6": 469,
-        "7": 9124,
-        "8": 9439,
-        "9": 5906
+        "1": 14730,
+        "2": 25865,
+        "3": 27799,
+        "4": 27577,
+        "5": 29087,
+        "6": 27962,
+        "7": 28650,
+        "8": 29210,
+        "9": 27810,
+        "10": 28101,
+        "11": 27230,
+        "12": 28595
       },
       "rows_by_season": {
-        "other": 2970,
-        "summer_jas": 24469,
-        "winter_jfm": 13908
+        "other": 168552,
+        "summer_jas": 85670,
+        "winter_jfm": 68394
       },
-      "finite_argo_tchp_rows": 13438,
-      "finite_argo_d26_rows": 13438,
-      "finite_model_tchp_rows": 12814,
-      "finite_model_d26_rows": 12814,
-      "finite_delta_tchp_rows": 12543,
-      "finite_delta_d26_rows": 12543
+      "finite_argo_tchp_rows": 96595,
+      "finite_argo_d26_rows": 96595,
+      "finite_model_tchp_rows": 92291,
+      "finite_model_d26_rows": 92291,
+      "finite_delta_tchp_rows": 90423,
+      "finite_delta_d26_rows": 90423
     }
   ]
 }

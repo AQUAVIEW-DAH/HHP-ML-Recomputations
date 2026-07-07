@@ -2,7 +2,7 @@
   "spec_note": "/home/suramya/HHP-Prediction/OHC/output/density_scatter_diagnostics_2024_2025/hhp_density_scatter_plot_spec.md",
   "targets": {
     "tchp": {
-      "rows": 8366,
+      "rows": 60666,
       "global_density": "/home/suramya/HHP-Prediction/OHC/output/density_scatter_diagnostics_2024_2025/global_density/tchp_global_density_scatter.png",
       "presentation_raw_density": "/home/suramya/HHP-Prediction/OHC/output/density_scatter_diagnostics_2024_2025/presentation_density/tchp_raw_presentation_density_scatter.png",
       "presentation_corrected_density": "/home/suramya/HHP-Prediction/OHC/output/density_scatter_diagnostics_2024_2025/presentation_density/tchp_corrected_presentation_density_scatter.png",
@@ -18,12 +18,12 @@
       "feature_binned_mae": "/home/suramya/HHP-Prediction/OHC/output/density_scatter_diagnostics_2024_2025/feature_relations/tchp_feature_binned_mae.png",
       "feature_binned_mae_csv": "/home/suramya/HHP-Prediction/OHC/output/density_scatter_diagnostics_2024_2025/tables/tchp_feature_binned_mae.csv",
       "error_summary": {
-        "raw_error_std": 20.792916992934277,
-        "corrected_error_std": 16.384201337339828
+        "raw_error_std": 20.34719770572896,
+        "corrected_error_std": 16.52506067948418
       }
     },
     "d26": {
-      "rows": 8366,
+      "rows": 60666,
       "global_density": "/home/suramya/HHP-Prediction/OHC/output/density_scatter_diagnostics_2024_2025/global_density/d26_global_density_scatter.png",
       "presentation_raw_density": "/home/suramya/HHP-Prediction/OHC/output/density_scatter_diagnostics_2024_2025/presentation_density/d26_raw_presentation_density_scatter.png",
       "presentation_corrected_density": "/home/suramya/HHP-Prediction/OHC/output/density_scatter_diagnostics_2024_2025/presentation_density/d26_corrected_presentation_density_scatter.png",
@@ -39,8 +39,8 @@
       "feature_binned_mae": "/home/suramya/HHP-Prediction/OHC/output/density_scatter_diagnostics_2024_2025/feature_relations/d26_feature_binned_mae.png",
       "feature_binned_mae_csv": "/home/suramya/HHP-Prediction/OHC/output/density_scatter_diagnostics_2024_2025/tables/d26_feature_binned_mae.csv",
       "error_summary": {
-        "raw_error_std": 18.484346949020757,
-        "corrected_error_std": 14.491447806522437
+        "raw_error_std": 17.649818784267264,
+        "corrected_error_std": 14.742906501567827
       }
     }
   },
