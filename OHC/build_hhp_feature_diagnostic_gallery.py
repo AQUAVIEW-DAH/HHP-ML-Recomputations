@@ -382,7 +382,38 @@ def _write_index(manifest: dict, out_path: Path) -> None:
     out_path.write_text("\n".join(lines))
 
 
+# Features actually used by the current recommended locked recipes
+# (global_pruned for TCHP, drop_both_lat_interactions for D26). The curated
+# gallery renders sheets only for these, plus the overview pages.
+RECIPE_FEATURE_COLUMNS = {
+    "model_ssh_m",
+    "model_mixed_layer_thickness_m",
+    "model_surface_boundary_layer_thickness_m",
+    "model_temp_excess_26c",
+    "d26_minus_mlt_m",
+    "d26_to_sblt_ratio",
+    "model_steric_1000_ref2000_m",
+    "model_n2_max_upper200_s2",
+    "model_n2_mean_to_d26_s2",
+}
+
+
 def main() -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--curated",
+        action="store_true",
+        help="Render only features used by the current recommended recipes, into a *_curated output dir.",
+    )
+    args = parser.parse_args()
+
+    global OUT_DIR
+    if args.curated:
+        OUT_DIR = OUT_DIR.parent / f"{OUT_DIR.name}_curated"
+    specs = [s for s in FEATURE_SPECS if not args.curated or s.column in RECIPE_FEATURE_COLUMNS]
+
     paths = _prepare_out_dirs()
     df = _merge_feature_tables()
 
@@ -399,7 +430,7 @@ def main() -> None:
         "feature_sheets": [],
     }
 
-    for spec in FEATURE_SPECS:
+    for spec in specs:
         out_path = paths["feature_sheets"] / f"{spec.family}__{spec.column}.png"
         manifest["feature_sheets"].append(_render_feature_sheet(df, spec, out_path))
 
@@ -407,7 +438,9 @@ def main() -> None:
         ("steric_height", "Steric-height feature family overview"),
         ("brunt_vaisala", "Brunt-Vaisala feature family overview"),
     ]:
-        family_specs = [spec for spec in FEATURE_SPECS if spec.family == family]
+        family_specs = [spec for spec in specs if spec.family == family]
+        if not family_specs:
+            continue
         out_path = paths["family_overviews"] / f"{family}_overview.png"
         _render_family_overview(df, family_specs, out_path, title)
         manifest["family_overviews"][family] = str(out_path)

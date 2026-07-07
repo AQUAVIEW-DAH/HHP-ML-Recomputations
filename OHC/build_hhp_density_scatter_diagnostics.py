@@ -438,9 +438,16 @@ def _plot_presentation_density(
 
 
 def _plot_region_density(target: TargetConfig, df: pd.DataFrame, out_path: Path, metrics_rows: list[dict]) -> None:
-    fig, axes = plt.subplots(len(REGION_ORDER), 2, figsize=(15, 20), constrained_layout=True)
+    # Only render regions with data; high_latitude has no valid TCHP/D26 rows
+    # by construction (the 26C isotherm target is undefined there).
+    regions = [
+        r for r in REGION_ORDER
+        if np.isfinite(df.loc[df["macro_region"] == r, target.obs_col].to_numpy(float)).sum() > 0
+    ]
+    fig, axes = plt.subplots(len(regions), 2, figsize=(15, 5 * len(regions)), constrained_layout=True)
+    axes = np.atleast_2d(axes)
     mesh = None
-    for i, region in enumerate(REGION_ORDER):
+    for i, region in enumerate(regions):
         sub = df[df["macro_region"] == region].copy()
         obs = sub[target.obs_col].to_numpy(float)
         raw = sub[target.raw_col].to_numpy(float)
@@ -551,16 +558,14 @@ def _plot_top_patch_density(target: TargetConfig, df: pd.DataFrame, patch_df: pd
     if selected_df.empty:
         return
 
-    nrows = len(REGION_ORDER)
+    regions = [r for r in REGION_ORDER if not selected_df[selected_df["macro_region"] == r].empty]
+    nrows = len(regions)
     ncols = 2
-    fig, axes = plt.subplots(nrows, ncols, figsize=(16, 20), constrained_layout=True)
+    fig, axes = plt.subplots(nrows, ncols, figsize=(16, 5 * nrows), constrained_layout=True)
+    axes = np.atleast_2d(axes)
     mesh = None
-    for i, region in enumerate(REGION_ORDER):
+    for i, region in enumerate(regions):
         subsel = selected_df[selected_df["macro_region"] == region].copy()
-        if subsel.empty:
-            for j in range(ncols):
-                axes[i, j].axis("off")
-            continue
         best = subsel.iloc[0]
         g = df[(df["macro_region"] == region) & (df["patch_label"] == best["patch_label"])].copy()
         obs = g[target.obs_col].to_numpy(float)
