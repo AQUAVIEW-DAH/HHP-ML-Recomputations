@@ -744,8 +744,9 @@ def _plot_named_box_monthly_support(target: TargetConfig, df: pd.DataFrame, out_
     cbar = fig.colorbar(mesh, ax=ax, shrink=0.9, pad=0.02)
     cbar.set_label("finite rows in month")
     ax.set_title(
-        f"{target.short_label}: monthly collocation support per named 20° box\n"
-        "White months have no collocated rows (currently dominated by missing reduced RTOFS daily fields)"
+        f"{target.short_label}: monthly collocation-data support per named 20° box (finite observed rows)\n"
+        "Counts reflect the full collocation table; the locked-protocol scatters evaluate a subset "
+        "(the earliest blocked-forward block is train-only)"
     )
     fig.savefig(out_path, dpi=180)
     plt.close(fig)
@@ -1029,7 +1030,12 @@ def main() -> None:
         _plot_top_patch_density(target, df, patch_df, patch_density, metrics_rows)
         _plot_named_box_map(target, df, named_box_map)
         _plot_named_box_density(target, df, named_box_density, metrics_rows)
-        _plot_named_box_monthly_support(target, df, named_box_support, named_box_support_csv)
+        # Support heatmap counts the full collocation table (data support),
+        # not the locked OOF subset the scatters evaluate.
+        support_df = merged_features[pd.notna(merged_features[target.obs_col])].copy()
+        support_df["date"] = _canonical_date_str(support_df["date"])
+        support_df = _augment_regions_and_patches(support_df)
+        _plot_named_box_monthly_support(target, support_df, named_box_support, named_box_support_csv)
         error_summary = _plot_error_distributions(target, df, error_path)
         _plot_feature_relations(target, df, feature_path, feature_csv)
 
