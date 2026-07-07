@@ -21,6 +21,8 @@ OHC/output/**/tools/
 OHC/output/*
 !OHC/output/density_scatter_diagnostics_2024_2025/
 !OHC/output/density_scatter_diagnostics_2024_2025/**
+!OHC/output/presentation_spatial_ablation_2024_2025/
+!OHC/output/presentation_spatial_ablation_2024_2025/**
 !OHC/output/feature_diagnostics/
 !OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/
 OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/*
