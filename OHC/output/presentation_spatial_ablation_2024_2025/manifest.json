@@ -1,0 +1,127 @@
+{
+  "figures": {
+    "tchp": {
+      "observed_points_map": "/home/suramya/HHP-Prediction/OHC/output/presentation_spatial_ablation_2024_2025/tchp_observed_points_map.png",
+      "spatial_ablation_density": "/home/suramya/HHP-Prediction/OHC/output/presentation_spatial_ablation_2024_2025/tchp_spatial_ablation_density.png",
+      "correction_magnitude_map": "/home/suramya/HHP-Prediction/OHC/output/presentation_spatial_ablation_2024_2025/tchp_correction_magnitude_map.png",
+      "rows": 60666,
+      "dates": 467
+    },
+    "d26": {
+      "observed_points_map": "/home/suramya/HHP-Prediction/OHC/output/presentation_spatial_ablation_2024_2025/d26_observed_points_map.png",
+      "spatial_ablation_density": "/home/suramya/HHP-Prediction/OHC/output/presentation_spatial_ablation_2024_2025/d26_spatial_ablation_density.png",
+      "correction_magnitude_map": "/home/suramya/HHP-Prediction/OHC/output/presentation_spatial_ablation_2024_2025/d26_correction_magnitude_map.png",
+      "rows": 60666,
+      "dates": 467
+    },
+    "stats": "/home/suramya/HHP-Prediction/OHC/output/presentation_spatial_ablation_2024_2025/spatial_ablation_stats.png"
+  },
+  "stats": {
+    "tchp": {
+      "raw RTOFS": {
+        "mae": {
+          "point": 16.614364205413796,
+          "lo": 16.419902736608858,
+          "hi": 16.794629724600824
+        },
+        "rmse": {
+          "point": 23.24865365258205,
+          "lo": 22.98468847024196,
+          "hi": 23.503073220545918
+        },
+        "abs_bias": {
+          "point": 11.246841431339508,
+          "lo": 10.999340245966561,
+          "hi": 11.496542009728069
+        }
+      },
+      "corrected, no coordinate features": {
+        "mae": {
+          "point": 12.742074279792151,
+          "lo": 12.59842667627152,
+          "hi": 12.881011657620535
+        },
+        "rmse": {
+          "point": 18.052469594069702,
+          "lo": 17.771659968689274,
+          "hi": 18.328136484994857
+        },
+        "abs_bias": {
+          "point": 0.488609256713149,
+          "lo": 0.2864901670136587,
+          "hi": 0.7151141969388024
+        }
+      },
+      "corrected, best recipe (lat/lon/|lat|)": {
+        "mae": {
+          "point": 11.772133029638503,
+          "lo": 11.637924230883327,
+          "hi": 11.911971860121461
+        },
+        "rmse": {
+          "point": 16.527182369232456,
+          "lo": 16.276675672150702,
+          "hi": 16.774400353456507
+        },
+        "abs_bias": {
+          "point": 0.26481428442188293,
+          "lo": 0.03126646871022105,
+          "hi": 0.5051214100045597
+        }
+      }
+    },
+    "d26": {
+      "raw RTOFS": {
+        "mae": {
+          "point": 14.923275335814157,
+          "lo": 14.73465117859619,
+          "hi": 15.12224091554193
+        },
+        "rmse": {
+          "point": 20.036119826408783,
+          "lo": 19.76433792357936,
+          "hi": 20.319159023778134
+        },
+        "abs_bias": {
+          "point": 9.483142653189264,
+          "lo": 9.262720589316835,
+          "hi": 9.707225861805986
+        }
+      },
+      "corrected, no coordinate features": {
+        "mae": {
+          "point": 12.485917863573954,
+          "lo": 12.331040157928356,
+          "hi": 12.639481247780296
+        },
+        "rmse": {
+          "point": 16.613090995637435,
+          "lo": 16.3901514014715,
+          "hi": 16.86724667076897
+        },
+        "abs_bias": {
+          "point": 0.3474868676252713,
+          "lo": 0.16401284862659116,
+          "hi": 0.5328874034967244
+        }
+      },
+      "corrected, best recipe (lat/lon/|lat|)": {
+        "mae": {
+          "point": 11.135988528649646,
+          "lo": 11.024580188094589,
+          "hi": 11.240362451744351
+        },
+        "rmse": {
+          "point": 14.74686300498625,
+          "lo": 14.536493649288248,
+          "hi": 14.959779193205
+        },
+        "abs_bias": {
+          "point": 0.34157923511426863,
+          "lo": 0.19250766099959787,
+          "hi": 0.4927094620630277
+        }
+      }
+    }
+  }
+}
