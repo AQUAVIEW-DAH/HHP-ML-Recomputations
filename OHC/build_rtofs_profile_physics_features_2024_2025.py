@@ -63,7 +63,36 @@ FEATURE_COLUMNS = [
     "model_n2_max_upper200_s2",
     "model_n2_mean_to_d26_s2",
     "model_n2_max_to_d26_s2",
+    # Surface-stratification family (mentor request 2026-07 + Balaguru et al.
+    # 2012 PNAS barrier layers). All derived from the same blended profile:
+    "model_mld_sigma_m",
+    "model_ild_m",
+    "model_barrier_layer_thickness_m",
+    "model_n2_max_near_mld_s2",
+    "model_n2_max_above_mld_s2",
 ]
+
+# Layer-depth criteria (documented, tunable — mentor: definitions may need
+# iteration). MLD: density increase over the shallowest level; ILD:
+# conservative-temperature decrease over the shallowest level.
+MLD_DSIGMA0_KG_M3 = 0.125
+ILD_DTEMP_C = 0.5
+NEAR_MLD_HALF_WINDOW_M = 20.0
+
+
+def _first_crossing_depth(depth: np.ndarray, values: np.ndarray, threshold: float, *, increasing: bool) -> float:
+    """Depth where `values` first crosses `threshold` (linear interp between levels)."""
+    crossed = values >= threshold if increasing else values <= threshold
+    if not np.any(crossed):
+        return float("nan")
+    k = int(np.argmax(crossed))
+    if k == 0:
+        return float(depth[0])
+    v0, v1 = values[k - 1], values[k]
+    if not np.isfinite(v0) or not np.isfinite(v1) or v1 == v0:
+        return float(depth[k])
+    frac = (threshold - v0) / (v1 - v0)
+    return float(depth[k - 1] + frac * (depth[k] - depth[k - 1]))
 
 
 def _build_grid_lookup(grid_file: Path) -> tuple[cKDTree, np.ndarray, np.ndarray]:
@@ -212,13 +241,35 @@ def _compute_row_profile_features(
                 out["model_n2_mean_to_d26_s2"] = float(np.nanmean(n2[to_d26]))
                 out["model_n2_max_to_d26_s2"] = float(np.nanmax(n2[to_d26]))
 
+        # Surface stratification: profile-consistent density MLD, isothermal
+        # layer depth, barrier-layer thickness (Balaguru et al. 2012), and the
+        # mentor-defined N^2 summaries relative to the MLD.
+        depth_levels = -gsw.z_from_p(p, float(lat))
+        sigma0 = gsw.sigma0(sa, ct)
+        finite_prof = np.isfinite(depth_levels) & np.isfinite(sigma0) & np.isfinite(ct)
+        if finite_prof.sum() >= 5:
+            d_prof = depth_levels[finite_prof]
+            sig_prof = sigma0[finite_prof]
+            ct_prof = ct[finite_prof]
+            mld = _first_crossing_depth(d_prof, sig_prof, float(sig_prof[0]) + MLD_DSIGMA0_KG_M3, increasing=True)
+            ild = _first_crossing_depth(d_prof, ct_prof, float(ct_prof[0]) - ILD_DTEMP_C, increasing=False)
+            out["model_mld_sigma_m"] = mld
+            out["model_ild_m"] = ild
+            if np.isfinite(mld) and np.isfinite(ild):
+                out["model_barrier_layer_thickness_m"] = float(max(ild - mld, 0.0))
+            if np.isfinite(mld):
+                near = finite_n2 & (np.abs(depth_mid - mld) <= NEAR_MLD_HALF_WINDOW_M)
+                if np.any(near):
+                    out["model_n2_max_near_mld_s2"] = float(np.nanmax(n2[near]))
+                above = finite_n2 & (depth_mid <= mld - NEAR_MLD_HALF_WINDOW_M)
+                if np.any(above):
+                    out["model_n2_max_above_mld_s2"] = float(np.nanmax(n2[above]))
+
     return out
 
 
 def _load_or_init_df(input_path: Path, output_path: Path) -> pd.DataFrame:
-    if output_path.exists():
-        return pd.read_parquet(output_path).copy()
-    df = pd.read_parquet(input_path).copy()
+    df = pd.read_parquet(output_path).copy() if output_path.exists() else pd.read_parquet(input_path).copy()
     for col in FEATURE_COLUMNS:
         if col not in df.columns:
             df[col] = np.nan
@@ -346,7 +397,11 @@ def main() -> None:
     statuses: list[dict] = []
     for date in target_dates:
         already = work.loc[work["date"] == date, FEATURE_COLUMNS]
-        if not already.empty and np.isfinite(already.to_numpy(float)).any():
+        # Skip only when every feature column already has values for this date,
+        # so newly added feature columns trigger a recompute of old dates.
+        if not already.empty and all(
+            np.isfinite(already[col].to_numpy(float)).any() for col in FEATURE_COLUMNS
+        ):
             statuses.append({"date": date, "status": "skipped_existing", "rows": int(len(already))})
             continue
         work, status = enrich_date(

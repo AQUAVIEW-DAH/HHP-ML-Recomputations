@@ -71,6 +71,16 @@ SPATIAL_COORD_FEATURES = {"lat", "lon", "abs_lat"}
 NON_SPATIAL_BASE = [c for c in BASE_FEATURES if c not in SPATIAL_COORD_FEATURES]
 GLOBAL_PRUNED_NO_LAT_INTERACTIONS = [c for c in GLOBAL_PRUNED if not c.endswith("_x_abs_lat")]
 
+# Surface-stratification family (mentor-defined N^2-vs-MLD summaries plus
+# Balaguru et al. 2012 barrier-layer quantities), from the profile-physics
+# builder. Only meaningful once the extended profile backfill has run.
+STRATIFICATION_CORE = [
+    "model_n2_max_near_mld_s2",
+    "model_n2_max_above_mld_s2",
+    "model_barrier_layer_thickness_m",
+    "model_ild_m",
+]
+
 # Tier-0 spatial regime descriptors (see SPATIAL_FEATURES_DIRECTIONS.md).
 # Local stds / gradients / anomalies only; local means are omitted because they
 # nearly duplicate the point values.
@@ -93,6 +103,8 @@ FEATURE_SETS_BY_TARGET = {
         "global_pruned": BASE_FEATURES + GLOBAL_PRUNED,
         "global_pruned_no_spatial": NON_SPATIAL_BASE + GLOBAL_PRUNED_NO_LAT_INTERACTIONS,
         "global_pruned_plus_neighborhood": BASE_FEATURES + GLOBAL_PRUNED + NEIGHBORHOOD_CORE,
+        "global_pruned_plus_stratification": BASE_FEATURES + GLOBAL_PRUNED + STRATIFICATION_CORE,
+        "global_pruned_plus_nbhd_plus_strat": BASE_FEATURES + GLOBAL_PRUNED + NEIGHBORHOOD_CORE + STRATIFICATION_CORE,
         "drop_temp_lat_interaction": BASE_FEATURES + [
             "model_ssh_m",
             "model_mixed_layer_thickness_m",
@@ -171,6 +183,30 @@ FEATURE_SETS_BY_TARGET = {
             "model_n2_max_upper200_s2",
             "model_n2_mean_to_d26_s2",
         ] + NEIGHBORHOOD_CORE,
+        "drop_both_lat_interactions_plus_stratification": BASE_FEATURES + [
+            "model_ssh_m",
+            "model_mixed_layer_thickness_m",
+            "model_surface_boundary_layer_thickness_m",
+            "model_temp_excess_26c",
+            "d26_minus_mlt_m",
+            "d26_to_sblt_ratio",
+            "model_mlt_x_abs_lat",
+            "model_steric_1000_ref2000_m",
+            "model_n2_max_upper200_s2",
+            "model_n2_mean_to_d26_s2",
+        ] + STRATIFICATION_CORE,
+        "drop_both_lat_interactions_plus_nbhd_plus_strat": BASE_FEATURES + [
+            "model_ssh_m",
+            "model_mixed_layer_thickness_m",
+            "model_surface_boundary_layer_thickness_m",
+            "model_temp_excess_26c",
+            "d26_minus_mlt_m",
+            "d26_to_sblt_ratio",
+            "model_mlt_x_abs_lat",
+            "model_steric_1000_ref2000_m",
+            "model_n2_max_upper200_s2",
+            "model_n2_mean_to_d26_s2",
+        ] + NEIGHBORHOOD_CORE + STRATIFICATION_CORE,
         "drop_temp_lat_interaction": BASE_FEATURES + [
             "model_ssh_m",
             "model_mixed_layer_thickness_m",
