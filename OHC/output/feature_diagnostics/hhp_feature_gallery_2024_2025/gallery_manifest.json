@@ -104,8 +104,8 @@
       "label": "Steric Height 0/1000",
       "family": "steric_height",
       "units": "m",
-      "finite_rows": 2954,
-      "missing_rows": 319662,
+      "finite_rows": 35423,
+      "missing_rows": 287193,
       "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/steric_height__model_steric_0_1000_m.png"
     },
     {
@@ -113,8 +113,8 @@
       "label": "Steric Height 0/2000",
       "family": "steric_height",
       "units": "m",
-      "finite_rows": 2785,
-      "missing_rows": 319831,
+      "finite_rows": 33459,
+      "missing_rows": 289157,
       "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/steric_height__model_steric_0_2000_m.png"
     },
     {
@@ -122,8 +122,8 @@
       "label": "Steric Height 1000 Ref 2000",
       "family": "steric_height",
       "units": "m",
-      "finite_rows": 2785,
-      "missing_rows": 319831,
+      "finite_rows": 33459,
+      "missing_rows": 289157,
       "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/steric_height__model_steric_1000_ref2000_m.png"
     },
     {
@@ -131,8 +131,8 @@
       "label": "Mean N^2 Upper 200 m",
       "family": "brunt_vaisala",
       "units": "s^-2",
-      "finite_rows": 3068,
-      "missing_rows": 319548,
+      "finite_rows": 36659,
+      "missing_rows": 285957,
       "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/brunt_vaisala__model_n2_mean_upper200_s2.png"
     },
     {
@@ -140,8 +140,8 @@
       "label": "Max N^2 Upper 200 m",
       "family": "brunt_vaisala",
       "units": "s^-2",
-      "finite_rows": 3068,
-      "missing_rows": 319548,
+      "finite_rows": 36659,
+      "missing_rows": 285957,
       "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/brunt_vaisala__model_n2_max_upper200_s2.png"
     },
     {
@@ -149,8 +149,8 @@
       "label": "Mean N^2 to D26",
       "family": "brunt_vaisala",
       "units": "s^-2",
-      "finite_rows": 848,
-      "missing_rows": 321768,
+      "finite_rows": 10674,
+      "missing_rows": 311942,
       "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/brunt_vaisala__model_n2_mean_to_d26_s2.png"
     },
     {
@@ -158,8 +158,8 @@
       "label": "Max N^2 to D26",
       "family": "brunt_vaisala",
       "units": "s^-2",
-      "finite_rows": 848,
-      "missing_rows": 321768,
+      "finite_rows": 10674,
+      "missing_rows": 311942,
       "plot": "/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/brunt_vaisala__model_n2_max_to_d26_s2.png"
     }
   ]

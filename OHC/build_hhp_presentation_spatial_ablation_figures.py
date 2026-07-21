@@ -7,8 +7,8 @@ Per target (TCHP, D26), on the full-calendar locked OOF prediction tables:
 2. `<t>_spatial_ablation_density.png` — 3-panel observed-vs-model density
    (raw RTOFS | corrected without any coordinate features | corrected best
    recipe with lat/lon/abs_lat + interactions), shared axes and color scale.
-3. `<t>_correction_magnitude_map.png` — points colored by corrected - raw,
-   showing the geographic structure of the learned correction.
+3. `<t>_error_and_correction_maps.png` — raw error (Argo - RTOFS) above the
+   learned correction (corrected - raw) on a shared color scale.
 
 Shared across targets:
 
@@ -29,6 +29,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
+plt.rcParams.update({"font.size": 13, "axes.titlesize": 14, "figure.titlesize": 16})
 import numpy as np
 import pandas as pd
 
@@ -162,23 +164,36 @@ def _plot_spatial_ablation_density(target_key: str, df: pd.DataFrame, out_path: 
     return stats_rows
 
 
-def _plot_correction_magnitude_map(target_key: str, df: pd.DataFrame, out_path: Path) -> None:
+def _plot_error_and_correction_maps(target_key: str, df: pd.DataFrame, out_path: Path) -> None:
+    """Observed error of raw RTOFS (Argo minus model) above the learned
+    correction, on a shared color scale, so the reader can see whether the
+    correction mirrors the error (mentor request)."""
     t = TARGETS[target_key]
-    delta = df[t["best_col"]].to_numpy(float) - df[t["raw_col"]].to_numpy(float)
-    vlim = float(np.nanquantile(np.abs(delta), 0.98))
-    fig, ax = plt.subplots(figsize=(16, 7.2), constrained_layout=True)
-    sc = ax.scatter(df["lon"], df["lat"], c=delta, s=2.0, cmap="RdBu_r", vmin=-vlim, vmax=vlim, rasterized=True)
-    add_land_overlay(ax, zorder=2)
-    ax.set_xlim(-180, 180)
-    ax.set_ylim(-70, 70)
-    ax.set_xlabel("Longitude")
-    ax.set_ylabel("Latitude")
-    ax.set_title(
-        f"{t['short']}: learned correction (corrected best recipe − raw RTOFS) at collocated points\n"
-        "Red = model raised the raw value, blue = lowered"
+    obs = df[t["obs_col"]].to_numpy(float)
+    raw = df[t["raw_col"]].to_numpy(float)
+    error = obs - raw
+    correction = df[t["best_col"]].to_numpy(float) - raw
+    vlim = float(np.nanquantile(np.abs(np.concatenate([error, correction])), 0.98))
+
+    fig, axes = plt.subplots(2, 1, figsize=(16, 13.5), constrained_layout=True)
+    panels = [
+        (error, f"Raw RTOFS error at collocated points: Argo − RTOFS ({t['short']})"),
+        (correction, f"Learned correction: corrected − raw RTOFS ({t['short']})"),
+    ]
+    for ax, (vals, title) in zip(axes, panels):
+        sc = ax.scatter(df["lon"], df["lat"], c=vals, s=2.0, cmap="RdBu_r", vmin=-vlim, vmax=vlim, rasterized=True)
+        add_land_overlay(ax, zorder=2)
+        ax.set_xlim(-180, 180)
+        ax.set_ylim(-70, 70)
+        ax.set_xlabel("Longitude")
+        ax.set_ylabel("Latitude")
+        ax.set_title(title)
+        cbar = fig.colorbar(sc, ax=ax, shrink=0.9, pad=0.01)
+        cbar.set_label(f"{t['units']} (red = positive)")
+    fig.suptitle(
+        f"{t['short']}: if the correction is working, the two panels should show the same pattern",
+        fontsize=15,
     )
-    cbar = fig.colorbar(sc, ax=ax, shrink=0.9, pad=0.01)
-    cbar.set_label(f"Correction ({t['units']})")
     fig.savefig(out_path, dpi=180)
     plt.close(fig)
 
@@ -204,31 +219,27 @@ def _bootstrap_metrics(df: pd.DataFrame, obs_col: str, pred_col: str, rng: np.ra
 
 
 def _plot_stats(all_stats: dict, out_path: Path) -> None:
+    """One row of panels per target so TCHP (kJ/cm2) and D26 (m) never share
+    a vertical axis (mentor request)."""
     metrics = [("mae", "MAE"), ("rmse", "RMSE"), ("abs_bias", "|Bias|")]
-    fig, axes = plt.subplots(1, 3, figsize=(18, 5.6), constrained_layout=True)
-    width = 0.25
     targets = list(TARGETS.keys())
-    x = np.arange(len(targets))
-    for ax, (mkey, mlabel) in zip(axes, metrics):
-        for vi, vlabel in enumerate(VARIANT_LABELS):
-            vals = [all_stats[t][vlabel][mkey]["point"] for t in targets]
-            los = [all_stats[t][vlabel][mkey]["point"] - all_stats[t][vlabel][mkey]["lo"] for t in targets]
-            his = [all_stats[t][vlabel][mkey]["hi"] - all_stats[t][vlabel][mkey]["point"] for t in targets]
-            ax.bar(
-                x + (vi - 1) * width, vals, width,
-                yerr=[los, his], capsize=3,
-                color=VARIANT_COLORS[vi], label=vlabel if mkey == "mae" else None,
-            )
-        ax.set_xticks(x)
-        ax.set_xticklabels([TARGETS[t]["short"] + f" ({TARGETS[t]['units']})" for t in targets])
-        ax.set_title(mlabel)
-        ax.grid(True, axis="y", alpha=0.15, linewidth=0.4)
-    axes[0].legend(loc="upper right", fontsize=9)
+    fig, axes = plt.subplots(len(targets), 3, figsize=(18, 5.2 * len(targets)), constrained_layout=True)
+    axes = np.atleast_2d(axes)
+    x = np.arange(len(VARIANT_LABELS))
+    for row, tkey in enumerate(targets):
+        for col, (mkey, mlabel) in enumerate(metrics):
+            ax = axes[row, col]
+            vals = [all_stats[tkey][v][mkey]["point"] for v in VARIANT_LABELS]
+            los = [all_stats[tkey][v][mkey]["point"] - all_stats[tkey][v][mkey]["lo"] for v in VARIANT_LABELS]
+            his = [all_stats[tkey][v][mkey]["hi"] - all_stats[tkey][v][mkey]["point"] for v in VARIANT_LABELS]
+            ax.bar(x, vals, 0.62, yerr=[los, his], capsize=4, color=VARIANT_COLORS)
+            ax.set_xticks(x)
+            ax.set_xticklabels(["raw RTOFS", "corrected,\nno coordinates", "corrected,\nbest recipe"], fontsize=11)
+            ax.set_title(f"{TARGETS[tkey]['short']}: {mlabel} ({TARGETS[tkey]['units']})")
+            ax.grid(True, axis="y", alpha=0.15, linewidth=0.4)
     fig.suptitle(
-        "Spatial-feature ablation, locked blocked-forward OOF (2024-2025 full calendar)\n"
-        "Error bars: 95% interval from date-block bootstrap "
-        f"({N_BOOT} resamples of whole days)",
-        fontsize=13,
+        "Spatial-feature ablation on the locked evaluation (2024-2025 full calendar)\n"
+        f"Error bars: 95% interval from resampling whole days ({N_BOOT} bootstrap draws)",
     )
     fig.savefig(out_path, dpi=180)
     plt.close(fig)
@@ -243,10 +254,10 @@ def main() -> None:
         df = _load(target_key)
         points_map = OUT_DIR / f"{target_key}_observed_points_map.png"
         density = OUT_DIR / f"{target_key}_spatial_ablation_density.png"
-        corr_map = OUT_DIR / f"{target_key}_correction_magnitude_map.png"
+        err_corr_map = OUT_DIR / f"{target_key}_error_and_correction_maps.png"
         _plot_observed_points_map(target_key, df, points_map)
         _plot_spatial_ablation_density(target_key, df, density)
-        _plot_correction_magnitude_map(target_key, df, corr_map)
+        _plot_error_and_correction_maps(target_key, df, err_corr_map)
 
         all_stats[target_key] = {}
         for vlabel, col in zip(VARIANT_LABELS, [t["raw_col"], t["no_spatial_col"], t["best_col"]]):
@@ -254,7 +265,7 @@ def main() -> None:
         manifest["figures"][target_key] = {
             "observed_points_map": str(points_map),
             "spatial_ablation_density": str(density),
-            "correction_magnitude_map": str(corr_map),
+            "error_and_correction_maps": str(err_corr_map),
             "rows": int(len(df)),
             "dates": int(df["date"].nunique()),
         }

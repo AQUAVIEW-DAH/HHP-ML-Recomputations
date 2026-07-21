@@ -29,5 +29,6 @@ sync_dir "${OUT}/density_scatter_diagnostics_2024_2025" "density-diagnostics"
 sync_dir "${OUT}/presentation_spatial_ablation_2024_2025" "spatial-ablation"
 sync_dir "${OUT}/ml_benchmarks/spatial_tiers" "spatial-ablation-tile20-holdout"
 sync_dir "${OUT}/feature_diagnostics/hhp_feature_gallery_2024_2025_curated" "feature-gallery-curated"
+sync_dir "${OUT}/box_stats_maps_2024_2025" "box-stats-maps"
 
 echo "Done."

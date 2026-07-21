@@ -3,14 +3,14 @@
     "tchp": {
       "observed_points_map": "/home/suramya/HHP-Prediction/OHC/output/presentation_spatial_ablation_2024_2025/tchp_observed_points_map.png",
       "spatial_ablation_density": "/home/suramya/HHP-Prediction/OHC/output/presentation_spatial_ablation_2024_2025/tchp_spatial_ablation_density.png",
-      "correction_magnitude_map": "/home/suramya/HHP-Prediction/OHC/output/presentation_spatial_ablation_2024_2025/tchp_correction_magnitude_map.png",
+      "error_and_correction_maps": "/home/suramya/HHP-Prediction/OHC/output/presentation_spatial_ablation_2024_2025/tchp_error_and_correction_maps.png",
       "rows": 60666,
       "dates": 467
     },
     "d26": {
       "observed_points_map": "/home/suramya/HHP-Prediction/OHC/output/presentation_spatial_ablation_2024_2025/d26_observed_points_map.png",
       "spatial_ablation_density": "/home/suramya/HHP-Prediction/OHC/output/presentation_spatial_ablation_2024_2025/d26_spatial_ablation_density.png",
-      "correction_magnitude_map": "/home/suramya/HHP-Prediction/OHC/output/presentation_spatial_ablation_2024_2025/d26_correction_magnitude_map.png",
+      "error_and_correction_maps": "/home/suramya/HHP-Prediction/OHC/output/presentation_spatial_ablation_2024_2025/d26_error_and_correction_maps.png",
       "rows": 60666,
       "dates": 467
     },
@@ -90,36 +90,36 @@
       },
       "corrected, no coordinate features": {
         "mae": {
-          "point": 12.485917863573954,
-          "lo": 12.331040157928356,
-          "hi": 12.639481247780296
+          "point": 12.478351359130567,
+          "lo": 12.32325250993265,
+          "hi": 12.636053531609216
         },
         "rmse": {
-          "point": 16.613090995637435,
-          "lo": 16.3901514014715,
-          "hi": 16.86724667076897
+          "point": 16.611105539977757,
+          "lo": 16.382876547542065,
+          "hi": 16.86085574846715
         },
         "abs_bias": {
-          "point": 0.3474868676252713,
-          "lo": 0.16401284862659116,
-          "hi": 0.5328874034967244
+          "point": 0.49831186709135966,
+          "lo": 0.3141028190446444,
+          "hi": 0.6855756655745091
         }
       },
       "corrected, best recipe (lat/lon/|lat|)": {
         "mae": {
-          "point": 11.135988528649646,
-          "lo": 11.024580188094589,
-          "hi": 11.240362451744351
+          "point": 11.138781581508184,
+          "lo": 11.026747240339049,
+          "hi": 11.242560290305953
         },
         "rmse": {
-          "point": 14.74686300498625,
-          "lo": 14.536493649288248,
-          "hi": 14.959779193205
+          "point": 14.755100136274038,
+          "lo": 14.541394514459395,
+          "hi": 14.96785041866866
         },
         "abs_bias": {
-          "point": 0.34157923511426863,
-          "lo": 0.19250766099959787,
-          "hi": 0.4927094620630277
+          "point": 0.3670164117795518,
+          "lo": 0.21507735970459535,
+          "hi": 0.5225040213357861
         }
       }
     }

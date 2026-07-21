@@ -70,6 +70,11 @@ FEATURE_COLUMNS = [
     "model_barrier_layer_thickness_m",
     "model_n2_max_near_mld_s2",
     "model_n2_max_above_mld_s2",
+    # Barrier-layer v2 (mentor-approved second pass): community-standard
+    # dT = 0.2 C isothermal-layer criterion, so the tropical salinity-barrier
+    # signal is not swamped by deep mid-latitude winter isothermal layers.
+    "model_ild_dt02_m",
+    "model_blt_dt02_m",
 ]
 
 # Layer-depth criteria (documented, tunable — mentor: definitions may need
@@ -77,6 +82,7 @@ FEATURE_COLUMNS = [
 # conservative-temperature decrease over the shallowest level.
 MLD_DSIGMA0_KG_M3 = 0.125
 ILD_DTEMP_C = 0.5
+ILD_DTEMP2_C = 0.2
 NEAR_MLD_HALF_WINDOW_M = 20.0
 
 
@@ -253,10 +259,14 @@ def _compute_row_profile_features(
             ct_prof = ct[finite_prof]
             mld = _first_crossing_depth(d_prof, sig_prof, float(sig_prof[0]) + MLD_DSIGMA0_KG_M3, increasing=True)
             ild = _first_crossing_depth(d_prof, ct_prof, float(ct_prof[0]) - ILD_DTEMP_C, increasing=False)
+            ild2 = _first_crossing_depth(d_prof, ct_prof, float(ct_prof[0]) - ILD_DTEMP2_C, increasing=False)
             out["model_mld_sigma_m"] = mld
             out["model_ild_m"] = ild
+            out["model_ild_dt02_m"] = ild2
             if np.isfinite(mld) and np.isfinite(ild):
                 out["model_barrier_layer_thickness_m"] = float(max(ild - mld, 0.0))
+            if np.isfinite(mld) and np.isfinite(ild2):
+                out["model_blt_dt02_m"] = float(max(ild2 - mld, 0.0))
             if np.isfinite(mld):
                 near = finite_n2 & (np.abs(depth_mid - mld) <= NEAR_MLD_HALF_WINDOW_M)
                 if np.any(near):
