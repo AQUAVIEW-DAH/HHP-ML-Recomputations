@@ -1,0 +1,7 @@
+{
+  "rows_total": 33911,
+  "dates_total": 73,
+  "finite_tchp_residuals": 10484,
+  "finite_d26_residuals": 10748,
+  "output_path": "/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_gofs31_collocated_2015.parquet"
+}

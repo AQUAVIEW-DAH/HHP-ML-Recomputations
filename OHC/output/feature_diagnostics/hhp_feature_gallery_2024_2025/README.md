@@ -81,48 +81,48 @@ This folder is organized for quick skim-review and Drive upload.
 ### Steric Height 0/1000 (`model_steric_0_1000_m`)
 - Family: `steric_height`
 - Units: `m`
-- Finite rows: `2954`
-- Missing rows: `319662`
+- Finite rows: `35423`
+- Missing rows: `287193`
 - Plot: `/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/steric_height__model_steric_0_1000_m.png`
 
 ### Steric Height 0/2000 (`model_steric_0_2000_m`)
 - Family: `steric_height`
 - Units: `m`
-- Finite rows: `2785`
-- Missing rows: `319831`
+- Finite rows: `33459`
+- Missing rows: `289157`
 - Plot: `/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/steric_height__model_steric_0_2000_m.png`
 
 ### Steric Height 1000 Ref 2000 (`model_steric_1000_ref2000_m`)
 - Family: `steric_height`
 - Units: `m`
-- Finite rows: `2785`
-- Missing rows: `319831`
+- Finite rows: `33459`
+- Missing rows: `289157`
 - Plot: `/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/steric_height__model_steric_1000_ref2000_m.png`
 
 ### Mean N^2 Upper 200 m (`model_n2_mean_upper200_s2`)
 - Family: `brunt_vaisala`
 - Units: `s^-2`
-- Finite rows: `3068`
-- Missing rows: `319548`
+- Finite rows: `36659`
+- Missing rows: `285957`
 - Plot: `/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/brunt_vaisala__model_n2_mean_upper200_s2.png`
 
 ### Max N^2 Upper 200 m (`model_n2_max_upper200_s2`)
 - Family: `brunt_vaisala`
 - Units: `s^-2`
-- Finite rows: `3068`
-- Missing rows: `319548`
+- Finite rows: `36659`
+- Missing rows: `285957`
 - Plot: `/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/brunt_vaisala__model_n2_max_upper200_s2.png`
 
 ### Mean N^2 to D26 (`model_n2_mean_to_d26_s2`)
 - Family: `brunt_vaisala`
 - Units: `s^-2`
-- Finite rows: `848`
-- Missing rows: `321768`
+- Finite rows: `10674`
+- Missing rows: `311942`
 - Plot: `/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/brunt_vaisala__model_n2_mean_to_d26_s2.png`
 
 ### Max N^2 to D26 (`model_n2_max_to_d26_s2`)
 - Family: `brunt_vaisala`
 - Units: `s^-2`
-- Finite rows: `848`
-- Missing rows: `321768`
+- Finite rows: `10674`
+- Missing rows: `311942`
 - Plot: `/home/suramya/HHP-Prediction/OHC/output/feature_diagnostics/hhp_feature_gallery_2024_2025/feature_sheets/brunt_vaisala__model_n2_max_to_d26_s2.png`

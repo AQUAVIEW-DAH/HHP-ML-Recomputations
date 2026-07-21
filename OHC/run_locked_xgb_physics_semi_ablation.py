@@ -81,6 +81,16 @@ STRATIFICATION_CORE = [
     "model_ild_m",
 ]
 
+# Mentor-preferred surface-referenced steric height (0/1000 dbar) to swap for
+# the 1000-ref-2000 variant: better indicator of upper-ocean eddies and far
+# better profile coverage (few profiles reach 2000 dbar).
+STERIC_SURFACE = "model_steric_0_1000_m"
+
+# Barrier-layer v2 columns (dT = 0.2 C definition); these only exist after the
+# barrier-v2 profile pass has run. Recipes whose missing columns are all in
+# this set are skipped with a warning instead of raising.
+OPTIONAL_FEATURES = {"model_ild_dt02_m", "model_blt_dt02_m"}
+
 # Tier-0 spatial regime descriptors (see SPATIAL_FEATURES_DIRECTIONS.md).
 # Local stds / gradients / anomalies only; local means are omitted because they
 # nearly duplicate the point values.
@@ -105,6 +115,8 @@ FEATURE_SETS_BY_TARGET = {
         "global_pruned_plus_neighborhood": BASE_FEATURES + GLOBAL_PRUNED + NEIGHBORHOOD_CORE,
         "global_pruned_plus_stratification": BASE_FEATURES + GLOBAL_PRUNED + STRATIFICATION_CORE,
         "global_pruned_plus_nbhd_plus_strat": BASE_FEATURES + GLOBAL_PRUNED + NEIGHBORHOOD_CORE + STRATIFICATION_CORE,
+        "global_pruned_plus_nbhd_plus_steric0_1000": BASE_FEATURES + GLOBAL_PRUNED + NEIGHBORHOOD_CORE + [STERIC_SURFACE],
+        "global_pruned_plus_nbhd_plus_blt02": BASE_FEATURES + GLOBAL_PRUNED + NEIGHBORHOOD_CORE + ["model_blt_dt02_m"],
         "drop_temp_lat_interaction": BASE_FEATURES + [
             "model_ssh_m",
             "model_mixed_layer_thickness_m",
@@ -207,6 +219,30 @@ FEATURE_SETS_BY_TARGET = {
             "model_n2_max_upper200_s2",
             "model_n2_mean_to_d26_s2",
         ] + NEIGHBORHOOD_CORE + STRATIFICATION_CORE,
+        "drop_both_plus_nbhd_steric0_1000": BASE_FEATURES + [
+            "model_ssh_m",
+            "model_mixed_layer_thickness_m",
+            "model_surface_boundary_layer_thickness_m",
+            "model_temp_excess_26c",
+            "d26_minus_mlt_m",
+            "d26_to_sblt_ratio",
+            "model_mlt_x_abs_lat",
+            STERIC_SURFACE,
+            "model_n2_max_upper200_s2",
+            "model_n2_mean_to_d26_s2",
+        ] + NEIGHBORHOOD_CORE,
+        "drop_both_plus_nbhd_blt02": BASE_FEATURES + [
+            "model_ssh_m",
+            "model_mixed_layer_thickness_m",
+            "model_surface_boundary_layer_thickness_m",
+            "model_temp_excess_26c",
+            "d26_minus_mlt_m",
+            "d26_to_sblt_ratio",
+            "model_mlt_x_abs_lat",
+            "model_steric_1000_ref2000_m",
+            "model_n2_max_upper200_s2",
+            "model_n2_mean_to_d26_s2",
+        ] + NEIGHBORHOOD_CORE + ["model_blt_dt02_m"],
         "drop_temp_lat_interaction": BASE_FEATURES + [
             "model_ssh_m",
             "model_mixed_layer_thickness_m",
@@ -336,9 +372,13 @@ def run_target(df: pd.DataFrame, target) -> tuple[pd.DataFrame, pd.DataFrame]:
         embargo_dates=fold_note["embargo_dates"],
     )
 
-    feature_sets = FEATURE_SETS_BY_TARGET[target.name]
-    for name, cols in feature_sets.items():
+    feature_sets = dict(FEATURE_SETS_BY_TARGET[target.name])
+    for name, cols in list(feature_sets.items()):
         missing = [c for c in cols if c not in work.columns]
+        if missing and set(missing) <= OPTIONAL_FEATURES:
+            print(f"skipping recipe {target.name}:{name} (optional columns not built yet: {missing})")
+            del feature_sets[name]
+            continue
         if missing:
             raise RuntimeError(f"Feature set {target.name}:{name} is missing columns: {missing}")
 

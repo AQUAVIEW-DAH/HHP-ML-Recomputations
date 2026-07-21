@@ -19,6 +19,8 @@ from pathlib import Path
 import sys
 
 import matplotlib.pyplot as plt
+
+plt.rcParams.update({"font.size": 13, "axes.titlesize": 14, "figure.titlesize": 16})
 import numpy as np
 import pandas as pd
 from matplotlib.colors import LogNorm, Normalize, TwoSlopeNorm
@@ -218,7 +220,7 @@ def _render_overview(df: pd.DataFrame, out_path: Path) -> None:
     ax.set_yticklabels([spec.label for spec in FEATURE_SPECS], fontsize=8)
     ax.set_xticks(np.arange(len(xticklabels)))
     ax.set_xticklabels(xticklabels, rotation=60, ha="right", fontsize=7)
-    ax.set_title("Finite-row fraction by feature and month")
+    ax.set_title("Valid-row fraction by feature and month")
     fig.colorbar(img, ax=ax, label="finite / total")
 
     fig.suptitle("HHP feature diagnostics overview", fontsize=16)
@@ -293,7 +295,7 @@ def _render_feature_sheet(df: pd.DataFrame, spec: FeatureSpec, out_path: Path) -
     ax.set_xticklabels([f"{m:02d}" for m in range(1, 13)])
     ax.set_xlabel("Month")
     ax.set_ylabel("Year")
-    ax.set_title("Finite-row fraction")
+    ax.set_title("Valid-row fraction")
     for yi in range(len(years)):
         for mi in range(12):
             if np.isfinite(heat[yi, mi]):
@@ -348,7 +350,7 @@ def _render_family_overview(df: pd.DataFrame, specs: list[FeatureSpec], out_path
             cb = fig.colorbar(artist, ax=ax, fraction=0.046, pad=0.02)
             cb.set_label(spec.units)
         _set_world_axes(ax)
-        ax.set_title(f"{spec.label}\nfinite rows={int(finite_mask.sum()):,}")
+        ax.set_title(f"{spec.label}\nvalid rows={int(finite_mask.sum()):,}")
     for ax in axes[n:]:
         ax.axis("off")
     fig.suptitle(title, fontsize=16)

@@ -40,7 +40,7 @@
       "feature_binned_mae_csv": "/home/suramya/HHP-Prediction/OHC/output/density_scatter_diagnostics_2024_2025/tables/d26_feature_binned_mae.csv",
       "error_summary": {
         "raw_error_std": 17.649818784267264,
-        "corrected_error_std": 14.742906501567827
+        "corrected_error_std": 14.750534871148185
       }
     }
   },

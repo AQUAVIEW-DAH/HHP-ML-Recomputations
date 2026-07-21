@@ -24,6 +24,8 @@ from pathlib import Path
 import sys
 
 import matplotlib.pyplot as plt
+
+plt.rcParams.update({"font.size": 13, "axes.titlesize": 14, "figure.titlesize": 16})
 import numpy as np
 import pandas as pd
 from matplotlib.colors import Normalize
@@ -337,6 +339,17 @@ def _plot_density_panel(
         vmax=color_limits[1],
     )
     ax.plot(xlim, xlim, linestyle="--", color="black", linewidth=1.0, alpha=0.9)
+    # Conditional mean: mean model value in each observed-value bin (mentor
+    # request) — makes nonlinearity of the model-vs-observed relation visible.
+    finite_xy = np.isfinite(x) & np.isfinite(y)
+    if finite_xy.sum() >= 50:
+        bin_idx = np.clip(np.digitize(x[finite_xy], x_edges) - 1, 0, len(x_edges) - 2)
+        sums = np.bincount(bin_idx, weights=y[finite_xy], minlength=len(x_edges) - 1)
+        counts = np.bincount(bin_idx, minlength=len(x_edges) - 1)
+        centers = 0.5 * (x_edges[:-1] + x_edges[1:])
+        good = counts >= 10
+        if good.any():
+            ax.plot(centers[good], sums[good] / counts[good], color="black", linewidth=2.2, alpha=0.95)
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
     ax.set_xlabel(xlabel)
@@ -747,9 +760,9 @@ def _plot_named_box_monthly_support(target: TargetConfig, df: pd.DataFrame, out_
             if counts[i, j] > 0:
                 ax.text(j + 0.5, i + 0.5, str(counts[i, j]), ha="center", va="center", fontsize=6.5, color="white")
     cbar = fig.colorbar(mesh, ax=ax, shrink=0.9, pad=0.02)
-    cbar.set_label("finite rows in month")
+    cbar.set_label("valid rows in month")
     ax.set_title(
-        f"{target.short_label}: monthly collocation-data support per named 20° box (finite observed rows)\n"
+        f"{target.short_label}: monthly collocation-data support per named 20° box (valid observed rows)\n"
         "Counts reflect the full collocation table; the locked-protocol scatters evaluate a subset "
         "(the earliest blocked-forward block is train-only)"
     )
@@ -833,7 +846,7 @@ def _plot_feature_relations(target: TargetConfig, df: pd.DataFrame, out_path: Pa
     for ax, feature_col in zip(axes, target.feature_cols):
         bins_df = _feature_bin_summary(work, feature_col, "raw_abs_error", "corrected_abs_error")
         if bins_df.empty:
-            ax.set_title(f"{feature_col}\ninsufficient finite rows")
+            ax.set_title(f"{feature_col}\ninsufficient valid rows")
             ax.axis("off")
             continue
         ax.plot(bins_df["bin_center"], bins_df["raw_mae"], marker="o", color="#dc2626", linewidth=2.0, label="raw_rtofs")
