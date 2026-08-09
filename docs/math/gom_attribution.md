@@ -251,6 +251,40 @@ predictions of §A5 — no curve contains in-sample fitting.
 
 ---
 
+## Why the global and local models show different contributions
+
+Both models use the same features, the same hyperparameters, and are explained
+on the same Gulf rows; only the training pool differs. Two distinct mechanisms
+produce the gap seen in the bar and dependence plots.
+
+**1. Different fitted functions.** The global model minimises loss over all
+oceans, so its response to a feature is a compromise across regimes. Writing
+$\mathcal{R}$ for a regime (basin, dynamical setting) with weight $p(\mathcal{R})$
+in the training pool, the global model's learned response to SSH approximates a
+weighted average of the regime-specific responses,
+
+$$f_{\text{global}}'(\text{SSH}) \;\approx\; \sum_{\mathcal{R}} p(\mathcal{R})\, f_{\mathcal{R}}'(\text{SSH})$$
+
+whereas the local model fits $f_{\text{Gulf}}'(\text{SSH})$ directly. Because
+the Gulf carries $\approx 1\%$ of global rows and SSH is far more informative
+about isotherm depth in a western-boundary current system than in, say, the
+open subtropical gyre, the global response is diluted — which is exactly the
+flattened gray cloud in the SSH dependence panel.
+
+**2. Different attribution baselines.** SHAP values are defined against each
+model's own conditional expectation $v(S)$, which TreeSHAP evaluates using the
+branch weights (covers) learned from that model's training data. So
+$\phi_i^{\text{global}}$ measures deviation from "the average prediction over
+global conditions", while $\phi_i^{\text{local}}$ measures deviation from "the
+average prediction over Gulf conditions". Even for identical fitted functions,
+the two decompositions would differ because the reference points differ.
+
+Consequence for interpretation: the comparison is between **learned
+strategies**, not between model-independent properties of the ocean. The
+statement supported by these figures is "the Gulf-trained model relies on SSH
+far more heavily than the globally-trained model does, and gains skill by doing
+so" — not "SSH explains X% of RTOFS error in the Gulf".
+
 ## Interpretation caveats
 
 1. TreeSHAP's conditional expectations use the **training** distribution's
