@@ -309,6 +309,34 @@ combine gates (geographic experts + regime soft weights); regime count K sweep;
 regime features that can isolate semi-enclosed basins without raw coordinates;
 blend expert with global prediction instead of hard selection.
 
+**v2 tuning results (2026-08-09,** `OHC/exploration/run_moe_v2_tuning.py`,
+outputs `OHC/output/moe_v2_tuning_20260811/`**).** Sweeps: prior weight
+{0.05, 0.10, 0.15, 0.25} × geographic experts; K {4, 6, 8, 12} × regime
+experts at the best prior; convex blends of the two best MoEs
+(α ∈ {0.25, 0.5, 0.75}).
+
+| out-of-fold MAE | TCHP | D26 | TCHP GoM | D26 GoM |
+|---|---|---|---|---|
+| single global model | 11.397 | 10.755 | 13.05 | 11.81 |
+| MoE v1 (w=0.15, K=6) | 11.281 | 10.634 | 12.42 | 11.92 |
+| **MoE v2 winner (blend)** | **11.189** | **10.553** | 12.41 | **11.52** |
+| dedicated Gulf-local (reference) | – | – | 12.37 | 11.23 |
+
+Winning configs: TCHP = 0.75·geographic(w=0.05) + 0.25·regime(K=6);
+D26 = 0.5·geographic(w=0.05) + 0.5·regime(K=12).
+
+Findings: (1) **weaker prior wins everywhere** (0.05 best on every axis) — the
+experts want more specialisation than v1 allowed, and the earlier D26 Gulf gap
+was indeed the prior: at w=0.05 the geographic expert alone reaches 11.76 in
+the Gulf and the blend 11.52, recovering ~60% of the dedicated local model's
+gain (v1 recovered none). (2) **Combining the gates is the overall winner for
+both targets** — geographic and regime experts make partly independent errors,
+so their blend beats either alone. (3) D26 prefers finer regimes (K=12) than
+TCHP (K=6). (4) The per-region-prior composite adds nothing beyond w=0.05
+everywhere — dropped. Cumulative story: raw RTOFS → best MoE is now
+16.34 → 11.19 (TCHP) and 14.67 → 10.55 (D26), the best global numbers of the
+project.
+
 ### C2. Gridded feature maps with attention — *status: roadmap*
 
 **Original note:** "every feature having a 2d map even 10 deg grids and
