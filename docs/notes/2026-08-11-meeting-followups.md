@@ -274,6 +274,41 @@ per named box; comparison against (a) global model, (b) per-basin local models.
 Open questions: number of experts, gate inputs, and whether experts should be
 region-specialised or regime-specialised.
 
+**Results — v1 implemented (2026-08-09,**
+`OHC/exploration/run_moe_regions.py`, outputs
+`OHC/output/moe_regions_20260811/`**).** Design per the robustness findings:
+tree-based experts, each trained on *all* rows with sample weights (own
+region/regime 1.0, elsewhere 0.15 — a local specialist with a global prior).
+Two gates compared: five geographic experts hard-gated by position (Gulf,
+Atlantic, Indian, West Pacific, East/Central Pacific), and six k-means regimes
+in physics-state space (no lat/lon) soft-gated by centroid distance, so the
+regime gate is defined everywhere including float deserts.
+
+Out-of-fold results, full global table:
+
+| variant | TCHP MAE | D26 MAE | TCHP GoM | D26 GoM |
+|---|---|---|---|---|
+| global model | 11.397 | 10.755 | 13.05 | 11.81 |
+| **MoE geographic** | **11.281** | **10.634** | **12.42** | 11.92 |
+| MoE learned regimes | 11.327 | 10.683 | 13.04 | 11.84 |
+| (dedicated Gulf-local, for reference) | – | – | 12.37 | 11.23 |
+
+Readings: (1) both MoE variants beat the single global model everywhere-on-
+average, and the geographic version sets **new overall bests** for both
+targets. (2) In the Gulf, the geographic MoE recovers essentially all of the
+dedicated local model's TCHP gain (12.42 vs 12.37, bias −5.7 → −3.9) from
+within one unified system — the original motivation fulfilled. (3) It does
+*not* yet recover the local D26 gain (11.92 vs 11.23), suggesting the 0.15
+global-prior weight is too strong for D26's Gulf specialisation. (4) The
+learned regimes recover latitude-band / stratification structure without being
+given coordinates (`learned_regime_map.png`) — scientifically pleasing — but
+no Gulf-specific regime emerges, so the regime gate does not help the Gulf.
+
+**Next tuning steps.** Prior-weight sweep (0.05–0.3, possibly per-region);
+combine gates (geographic experts + regime soft weights); regime count K sweep;
+regime features that can isolate semi-enclosed basins without raw coordinates;
+blend expert with global prediction instead of hard selection.
+
 ### C2. Gridded feature maps with attention — *status: roadmap*
 
 **Original note:** "every feature having a 2d map even 10 deg grids and
