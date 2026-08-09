@@ -179,6 +179,16 @@ train random forest (and optionally a linear model) on the same recipe; report
 MAE side by side; compute permutation importance for the forest and compare the
 feature ranking to the boosted model's contributions.
 
+**Results (2026-08-09 run,** `OHC/output/gom_robustness_20260811/`**).** Both
+conclusions survive the algorithm swap. Random forest Gulf MAE: full recipe
+12.15 (TCHP) / 11.02 (D26); reduced set 11.82 / 10.87 — the lean-beats-full
+ordering holds in the new model family too. And the forest's permutation
+importance puts **SSH first for both targets** (then the local-anomaly
+features, longitude), matching the boosted model's contribution ranking. The
+SSH-dominance finding is therefore a property of the data, not of gradient
+boosting. Random forest runs slightly behind boosted trees throughout
+(~0.2–0.4 MAE), consistent with the literature on tabular data at this scale.
+
 ### B2. Resolution of the splits on the top features — *status: queued*
 
 **Original note:** "look into how finely we can split into the random forest
@@ -200,6 +210,18 @@ themselves become an interpretable description of the learned SSH response.
 set; report the skill surface; extract and plot the distribution of split
 thresholds on SSH.
 
+**Results (2026-08-09 run).** More capacity does **not** help: the sweep over
+depth {4, 6, 8} × estimators {300, 800} is won by the *smallest* settings
+(TCHP: depth 4 / 300 trees, MAE 11.70; D26: depth 6 / 300 trees, 10.62 —
+statistically indistinguishable from depth 4), and depth-8 or 800-tree variants
+are uniformly worse. The split-threshold histograms show the winning models
+already place hundreds of distinct splits along the SSH axis (408 for TCHP,
+2,542 for D26), i.e. the SSH response is already finely resolved. Conclusion
+for "can we ask the model to look more strongly": **the constraint is Gulf
+sample size (~2.7k training rows), not model resolution** — more capacity just
+overfits. The way to a sharper SSH response is more data (more years, gliders),
+not deeper trees.
+
 ### B3. Small neural network on the top features — *status: queued*
 
 **Original note:** "nn start with the most important parameters maybe
@@ -216,6 +238,16 @@ natural stepping stone toward the architecture ideas in section C.
 the residual target; same folds; early stopping on a held-out slice of the
 training block; compare skill and gradient-based sensitivities against the
 boosted model's contributions.
+
+**Results (2026-08-09 run).** A 64×64 network on the reduced set trails both
+tree families clearly (TCHP 12.87, D26 12.42 — roughly a full MAE unit behind
+boosted trees) and flips the bias positive. At ~2.7k training rows this is the
+expected tabular-data outcome and it was an untuned first pass, but the
+practical implication for section C stands: at current data volumes the
+experts in any mixture-of-experts design should stay tree-based (or the gate
+alone can be a small network); pure neural approaches become interesting only
+once the training pool grows (more years, gliders, or the global MoE setting
+where experts see far more rows).
 
 ---
 
