@@ -230,6 +230,20 @@ The most important named recipes are:
 
 ## 7. Current best model status
 
+### 7.0 RECOMMENDED MODEL (updated 2026-08-09)
+
+The recommendation is now the **mixture-of-experts blend** — five geographic
+experts (hard positional gate) blended with K learned physics-state regimes
+(soft centroid-distance gate), XGBoost experts trained with a weak global
+prior (w = 0.05). Full specification, hyperparameters, evaluation numbers,
+and the register of every ML method tested:
+`docs/math/moe_recommended_model.md`.
+
+Headline locked OOF numbers: TCHP MAE 11.19 (raw 16.34), D26 MAE 10.55
+(raw 14.67). The single-recipe models below remain the baselines and are what
+the current density-diagnostics bundle visualises until it is regenerated on
+MoE predictions.
+
 Two evaluation lenses are relevant:
 
 ### 7.1 Year-holdout (train 2024, test 2025)

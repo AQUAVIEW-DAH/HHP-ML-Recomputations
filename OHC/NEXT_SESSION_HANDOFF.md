@@ -1,6 +1,16 @@
 # Next Session Handoff
 
-Date: 2026-07-04 (previous: 2026-06-27)
+Date: 2026-08-09 (previous: 2026-07-04, 2026-06-27)
+
+## -1. RECOMMENDED MODEL CHANGED (2026-08-09)
+
+The recommended correction model is now the **mixture-of-experts blend**
+(geographic experts + learned-regime experts, blended). Spec, math, and the
+full register of methods tested: `docs/math/moe_recommended_model.md`.
+Experiment trail: `docs/notes/2026-08-11-meeting-followups.md`.
+Still open before the MoE is fully productionised: regenerate the density
+diagnostics bundle on MoE predictions, and a fit-on-all-data + save script
+for field deployment.
 
 ## 0. Update 2026-07-04
 
