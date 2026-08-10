@@ -389,6 +389,22 @@ Output directory: `OHC/output/gom_diagnostics_20260811/`
   southwestern Gulf ~−5 m for identical sea level.
 - **A4 explanation — written up** in `docs/math/gom_attribution.md`.
 
+## MoE showcase figures (added after promotion)
+
+Script `OHC/exploration/build_moe_showcase_figures.py`; outputs
+`OHC/output/moe_showcase_20260811/`; Drive `HHP-moe-showcase-2026-08-11`.
+Four mentor-familiar figure families with the recommended blend as a third
+column against raw RTOFS and the previous best single model, reproducing the
+locked numbers exactly (60,666 rows; TCHP 16.61 → 11.40 → 11.19;
+D26 14.92 → 10.76 → 10.55): density comparison, per-named-box MAE bars,
+20° box improvement map (MoE vs single global), and conditional skill with all
+three models. The blend's out-of-fold predictions are saved as
+`moe_predictions_{target}.parquet` so other bundles can be regenerated on the
+recommended model without retraining. One caveat visible in the improvement
+maps: the subtropical North Atlantic (20–40°N, 60–20°W) slightly prefers the
+single global model for D26 (−0.2 to −0.5 m) — worth a look during the next
+tuning pass.
+
 ## Next actions
 
 1. Run B1–B3 (random forest, capacity sweep on reduced features, small neural
