@@ -405,6 +405,56 @@ maps: the subtropical North Atlantic (20–40°N, 60–20°W) slightly prefers t
 single global model for D26 (−0.2 to −0.5 m) — worth a look during the next
 tuning pass.
 
+## Meeting prep (Dr. Jacobs' written comments, answered 2026-08-10)
+
+Outputs: `OHC/output/critical_threshold_20260812/`
+(Drive: `HHP-critical-threshold-2026-08-12`).
+
+1. **"What is 'ssh'?"** — It is the **RTOFS sea-surface-height diagnostic**
+   read from the per-date `rtofs_glo_2ds_f006_diag.nc` files and sampled to the
+   profile position with the same 8-neighbour weighting as everything else. It
+   is the model's full SSH (steric plus mass contributions), not the steric
+   height we compute from profiles (those are the separate
+   `model_steric_*` features). His proposal — use the deviation from a
+   (lat, lon, month) mean instead — is in motion: the monthly-mean SSH
+   climatology over all 701 cached days is building
+   (`build_ssh_monthly_climatology.py` →
+   `/data/suramya/rtofs_ssh_climatology/monthly_mean_ssh.nc`); next step is an
+   `ssh_anom_monthly` feature and a recipe test. The same anomaly treatment
+   can be applied to profile-derived steric height where coverage allows.
+2. **"Divide the contribution by SSH — more uniform?"** — Done
+   (`d26_ssh_contribution_normalised_map.png`). Partially yes: the sign
+   becomes largely consistent (84% positive where |SSH| ≥ 5 cm, median
+   +35.7 m of D26 correction per metre of SSH) but the magnitude still varies
+   several-fold (10th–90th percentile −12 to +84 m/m), and the residual
+   variation is the same east/west regime structure the longitude colouring
+   showed. So the model's SSH response is a regime-dependent sensitivity, not
+   a single number.
+3. **"What stops the global model adapting locally?"** — Discussion answer:
+   capacity allocation under a global loss. The Gulf is ~1% of training rows,
+   so a split that improves the Gulf-specific SSH response buys ~1% of the
+   loss reduction of a split that helps everywhere; with depth-4 trees the
+   budget goes to globally common structure, and isolating the Gulf with raw
+   coordinates costs two splits before any physics is learned. Nothing in the
+   objective rewards regional structure — which is precisely the gap the
+   mixture of experts fills, and why its win concentrates in semi-enclosed
+   basins.
+4. **Random-forest caution (his point, now documented):** a forest's response
+   resolution is bounded by the training sample — with ~2.7k Gulf rows and
+   leaf sizes ≥ 5, no model family can discretise the input space more finely
+   than the data supports. Also added to the recommended-model caveats.
+5. **Critical-threshold statistics (his key suggestion) — implemented.**
+   `*_threshold_sweep.png` shows MAE restricted to observed ≥ t as a function
+   of t; `*_critical_named_box_mae.png` redraws the named-box bars in the high
+   regime only (TCHP ≥ 60 kJ/cm², D26 ≥ 100 m). Headline numbers above the
+   critical values: TCHP ≥ 60 — raw far behind, single global 15.28, MoE
+   14.99; D26 ≥ 100 m — raw 23.68 (bias −22.5), single global 12.66, MoE
+   12.46. Two lessons: the MoE margin persists in the regime that matters,
+   and the conditioning exposes that **all corrected models still
+   under-predict by 3–6 units above the critical value** — the tail bias is
+   the clearest remaining deficiency and a natural candidate for a
+   tail-weighted training objective.
+
 ## Next actions
 
 1. Run B1–B3 (random forest, capacity sweep on reduced features, small neural

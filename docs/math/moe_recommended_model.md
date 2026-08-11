@@ -157,6 +157,10 @@ the steric-height reference swap (surface/1000 dbar adopted over
    observed value except the lowest bin (see the conditional-skill analysis).
 4. 2024↔2025 float-platform overlap means date-holdout is not a full
    future-generalisation guarantee (June 2026 audit).
-5. Field deployment requires computing the neighborhood stencils and regime
+5. A model family cannot discretise the input space more finely than the
+   training sample supports (Dr. Jacobs, 2026-08): with ~2.7k Gulf rows,
+   capacity beyond depth-4/300-tree settings only overfits, in forests and
+   boosting alike.
+6. Field deployment requires computing the neighborhood stencils and regime
    gate on the full grid; all inputs are RTOFS-internal, so no external data
    dependency is introduced.
