@@ -115,7 +115,7 @@ def main() -> None:
     }
     (OUT_DIR / "ensemble_support_stats.json").write_text(json.dumps(stats, indent=2))
 
-    fig, axes = plt.subplots(1, 3, figsize=(21, 6.2), constrained_layout=True)
+    fig, axes = plt.subplots(1, 3, figsize=(22, 6.8), constrained_layout=True)
     axes[0].hist(rf_leaf_sizes_all, bins=40, color="#2563eb", alpha=0.75, label=f"RF ({rf_leaf_sizes_all.size:,} leaves)")
     axes[0].hist(xgb_leaf_cover_all, bins=40, color="#16a34a", alpha=0.55, label=f"XGB cover ({xgb_leaf_cover_all.size:,} leaves)")
     axes[0].set_yscale("log")
@@ -129,9 +129,7 @@ def main() -> None:
     axes[1].hist(xgb_mean_support, bins=40, color="#16a34a", alpha=0.55, label="XGB")
     axes[1].set_xlabel("mean rows per leaf the profile lands in (across all trees)")
     axes[1].set_ylabel("validation profiles")
-    axes[1].set_title(f"Per-profile effective support (median RF {stats['rf_val_mean_support_median']:.0f})\n"
-                      f"out-of-training-range profiles: {100*stats['extrapolation_share_val_physics_only']:.1f}% on physics features "
-                      f"({100*stats['extrapolation_share_val_any_feature']:.0f}% incl. calendar, inherent to forward validation)")
+    axes[1].set_title(f"Per-profile effective support (median RF {stats['rf_val_mean_support_median']:.0f} rows)")
     axes[1].legend()
     axes[1].grid(True, alpha=0.15)
 
@@ -143,7 +141,12 @@ def main() -> None:
     axes[2].set_ylabel("Latitude")
     axes[2].set_title("Where the forest's evidence is thin (RF mean support)")
     plt.colorbar(sc, ax=axes[2], shrink=0.85).set_label("mean rows per leaf")
-    fig.suptitle("D26 Gulf, locked fold 1: every profile is covered by every tree — this is how much evidence backs each prediction")
+    fig.suptitle(
+        "D26 Gulf, locked fold 1: every profile is covered by every tree — this is how much evidence backs each prediction\n"
+        f"Out-of-training-range profiles: {100*stats['extrapolation_share_val_physics_only']:.1f}% on physics features "
+        f"({100*stats['extrapolation_share_val_any_feature']:.0f}% including calendar features, which is inherent to forward-in-time validation)",
+        fontsize=15,
+    )
     fig.savefig(OUT_DIR / "ensemble_support_stats.png", dpi=180)
     plt.close(fig)
     print(json.dumps(stats, indent=2))
