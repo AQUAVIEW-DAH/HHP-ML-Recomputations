@@ -1,0 +1,8 @@
+{
+  "output_path": "/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025_ssh_anom.parquet",
+  "rows_total": 322616,
+  "valid_anom_rows": 321855,
+  "anom_p5": -0.10511962324380875,
+  "anom_median": 0.0006855428218841553,
+  "anom_p95": 0.10739454627037048
+}

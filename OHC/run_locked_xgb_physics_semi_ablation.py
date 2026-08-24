@@ -31,6 +31,7 @@ BASE_PATH = Path("/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/ar
 GLOBAL_PATH = Path("/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025_physics.parquet")
 PROFILE_PATH = Path("/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025_profile_physics.parquet")
 NEIGHBORHOOD_PATH = Path("/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025_neighborhood.parquet")
+SSH_ANOM_PATH = Path("/home/suramya/HHP-Prediction/OHC/output/ml_collocation/data/argo_rtofs_collocated_2024_2025_ssh_anom.parquet")
 OUT_DIR = Path("/home/suramya/HHP-Prediction/OHC/output/ml_benchmarks")
 FOLD_PATH = OUT_DIR / "tabular_benchmark_folds.json"
 
@@ -117,6 +118,11 @@ FEATURE_SETS_BY_TARGET = {
         "global_pruned_plus_nbhd_plus_strat": BASE_FEATURES + GLOBAL_PRUNED + NEIGHBORHOOD_CORE + STRATIFICATION_CORE,
         "global_pruned_plus_nbhd_plus_steric0_1000": BASE_FEATURES + GLOBAL_PRUNED + NEIGHBORHOOD_CORE + [STERIC_SURFACE],
         "global_pruned_plus_nbhd_plus_blt02": BASE_FEATURES + GLOBAL_PRUNED + NEIGHBORHOOD_CORE + ["model_blt_dt02_m"],
+        "global_pruned_plus_nbhd_ssh_anom_swap": [
+            ("ssh_anom_monthly_m" if c == "model_ssh_m" else c)
+            for c in BASE_FEATURES + GLOBAL_PRUNED + NEIGHBORHOOD_CORE
+        ],
+        "global_pruned_plus_nbhd_plus_ssh_anom": BASE_FEATURES + GLOBAL_PRUNED + NEIGHBORHOOD_CORE + ["ssh_anom_monthly_m"],
         "drop_temp_lat_interaction": BASE_FEATURES + [
             "model_ssh_m",
             "model_mixed_layer_thickness_m",
@@ -231,6 +237,33 @@ FEATURE_SETS_BY_TARGET = {
             "model_n2_max_upper200_s2",
             "model_n2_mean_to_d26_s2",
         ] + NEIGHBORHOOD_CORE,
+        "drop_both_plus_nbhd_ssh_anom_swap": [
+            ("ssh_anom_monthly_m" if c == "model_ssh_m" else c)
+            for c in BASE_FEATURES + [
+            "model_ssh_m",
+            "model_mixed_layer_thickness_m",
+            "model_surface_boundary_layer_thickness_m",
+            "model_temp_excess_26c",
+            "d26_minus_mlt_m",
+            "d26_to_sblt_ratio",
+            "model_mlt_x_abs_lat",
+            "model_steric_1000_ref2000_m",
+            "model_n2_max_upper200_s2",
+            "model_n2_mean_to_d26_s2",
+        ] + NEIGHBORHOOD_CORE
+        ],
+        "drop_both_plus_nbhd_plus_ssh_anom": BASE_FEATURES + [
+            "model_ssh_m",
+            "model_mixed_layer_thickness_m",
+            "model_surface_boundary_layer_thickness_m",
+            "model_temp_excess_26c",
+            "d26_minus_mlt_m",
+            "d26_to_sblt_ratio",
+            "model_mlt_x_abs_lat",
+            "model_steric_1000_ref2000_m",
+            "model_n2_max_upper200_s2",
+            "model_n2_mean_to_d26_s2",
+        ] + NEIGHBORHOOD_CORE + ["ssh_anom_monthly_m"],
         "drop_both_plus_nbhd_blt02": BASE_FEATURES + [
             "model_ssh_m",
             "model_mixed_layer_thickness_m",
@@ -313,6 +346,7 @@ def _merge_feature_tables() -> pd.DataFrame:
     global_df = pd.read_parquet(GLOBAL_PATH).reset_index(drop=True)
     profile_df = pd.read_parquet(PROFILE_PATH).reset_index(drop=True)
     neighborhood_df = pd.read_parquet(NEIGHBORHOOD_PATH).reset_index(drop=True)
+    ssh_anom_df = pd.read_parquet(SSH_ANOM_PATH).reset_index(drop=True)
 
     key_cols = [
         "date",
@@ -347,8 +381,12 @@ def _merge_feature_tables() -> pd.DataFrame:
         c for c in neighborhood_df.columns
         if c not in base.columns and c not in extra_global and c not in extra_profile
     ]
+    extra_ssh_anom = [c for c in ("ssh_clim_monthly_m", "ssh_anom_monthly_m") if c in ssh_anom_df.columns]
+    if len(ssh_anom_df) != len(base):
+        raise RuntimeError("ssh_anom table length mismatch with base")
     return pd.concat(
-        [base, global_df[extra_global], profile_df[extra_profile], neighborhood_df[extra_neighborhood]],
+        [base, global_df[extra_global], profile_df[extra_profile], neighborhood_df[extra_neighborhood],
+         ssh_anom_df[extra_ssh_anom]],
         axis=1,
     )
 
