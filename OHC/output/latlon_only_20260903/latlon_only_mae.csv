@@ -1,0 +1,17 @@
+target,model,scope,mae,rows
+tchp,raw RTOFS (zero-filled scale),all rows,4.888587863658967,219140
+tchp,rf lat/lon only,all rows,4.047995488366112,219140
+tchp,rf lat/lon only,both sides warm,12.441282906116223,60666
+tchp,svr_rbf lat/lon only,all rows,4.6316162141825625,219140
+tchp,svr_rbf lat/lon only,both sides warm,13.489817712499164,60666
+tchp,gpr lat/lon only,all rows,4.238341826958484,219140
+tchp,gpr lat/lon only,both sides warm,12.692497068488224,60666
+tchp,raw RTOFS,both sides warm,16.6143642054138,60666
+d26,raw RTOFS (zero-filled scale),all rows,5.233440417953421,219140
+d26,rf lat/lon only,all rows,4.995983062792103,219140
+d26,rf lat/lon only,both sides warm,12.503118740547984,60666
+d26,svr_rbf lat/lon only,all rows,5.127066046271137,219140
+d26,svr_rbf lat/lon only,both sides warm,12.62612655608723,60666
+d26,gpr lat/lon only,all rows,4.984353641756023,219140
+d26,gpr lat/lon only,both sides warm,12.165300726510653,60666
+d26,raw RTOFS,both sides warm,14.923275335814159,60666
