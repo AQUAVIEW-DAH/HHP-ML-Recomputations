@@ -18,11 +18,19 @@ Locked blocked-forward protocol (3 folds, 1-date embargo), all 322,616 rows.
 | raw RTOFS | 4.89 | 16.61 | 5.23 | 14.92 |
 | random forest | **4.05** | **12.44** | 5.00 | 12.50 |
 | SVR (RBF) | 4.63 | 13.49 | 5.13 | 12.63 |
+| XGBoost (locked hyperparameters) | 5.35 | 13.48 | 5.74 | 12.62 |
 | GP (anisotropic RBF) | 4.24 | 12.69 | **4.98** | **12.17** |
 
 ("warm" = both sides have 26 °C water, 60,666 rows — the scale of the locked
 table, where the full 35-feature model sits at 11.19 / 10.55.)
 
+0. **Learner-controlled comparison** (added after review): with the same locked
+   XGBoost hyperparameters, lat/lon-only scores 13.48 / 12.62 vs 11.40 / 10.76
+   with the 35 features — so the feature contribution, learner held fixed, is
+   ~2.1 (TCHP) / ~1.9 (D26) MAE. Depth-4 boosting is the weakest pure-geography
+   learner (worse than raw on the zero-filled scale: shallow trees smear
+   corrections into the zero region); the forest and the anisotropic GP carve
+   position best.
 1. **Geography alone recovers ~75% of the correction.** Position is a static
    bias map worth ~4.2 (TCHP) / ~2.5 (D26) MAE; all physics features together
    add the last ~1.2–1.6. Sharpest form of the redundancy point: any feature
