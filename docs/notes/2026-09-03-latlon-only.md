@@ -48,3 +48,19 @@ table, where the full 35-feature model sits at 11.19 / 10.55.)
 Zero-fill convention note: this run adopts TCHP=0 / D26:=0 where the column
 never reaches 26 °C, resolving the long-open none-vs-zero question in the
 mentor's favour of zero.
+
+## Follow-up: all four families on the full feature recipes
+
+`run_full_features_model_families.py` (same folds, same warm rows; the XGBoost
+row reproduces the locked reference exactly). Full-feature OOF MAE:
+XGB 11.40 / 10.76 · RF 11.42 / 10.93 · SVR 11.63 / 11.20 · GPR 12.05 / 11.39.
+
+**The learner ranking flips with the feature set.** On lat/lon alone the
+forest and the anisotropic GP win and boosting is worst; on the 34/35-feature
+recipes boosting leads, the forest is a close second, and the kernel methods
+fall behind (the GP goes from best on D26 to worst — an isotropic kernel over
+35 standardized dimensions is a much blunter instrument than over 2
+interpretable ones). Every model family lands within ~0.6 of XGBoost though:
+the features, not the learner, carry most of the skill. Figure:
+`model_families_latlon_vs_full.png`; full feature list:
+`full_model_features.csv` (37-feature union, family-labelled).
