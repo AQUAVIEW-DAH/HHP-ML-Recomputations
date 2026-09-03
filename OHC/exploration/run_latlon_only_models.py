@@ -160,12 +160,19 @@ def main() -> None:
         plt.close(fig)
 
         gy, gx = np.gradient(models_pred_grid["rf"])
-        fig, ax = plt.subplots(figsize=(13, 5.6), constrained_layout=True)
-        pm = ax.pcolormesh(glon, glat, np.hypot(gy, gx), shading="auto", cmap="magma", zorder=1)
-        add_land_overlay(ax, zorder=5)
+        g = np.hypot(gy, gx)
+        p98 = float(np.percentile(g, 98)); gmax = float(g.max())
+        med_seam = float(np.median(g[g > 0.5]))
+        fig, ax = plt.subplots(figsize=(13, 5.8), constrained_layout=True)
+        pm = ax.pcolormesh(glon, glat, g, shading="auto", cmap="inferno",
+                           norm=matplotlib.colors.PowerNorm(gamma=0.45, vmin=0, vmax=p98), zorder=1)
+        add_land_overlay(ax, facecolor="#c9c9c9", zorder=5)
         ax.set_xlim(-180, 180); ax.set_ylim(-70, 70)
-        ax.set_title(f"{tname.upper()}: random-forest discontinuities (gradient magnitude of the predicted correction)", fontsize=13)
-        fig.colorbar(pm, ax=ax, shrink=0.85, pad=0.02).set_label(f"|∇ prediction| ({unit}/0.5°)")
+        ax.set_title(f"{tname.upper()}: random-forest subdomain boundaries (jump size of the predicted correction)\n"
+                     f"color capped at 98th pct = {p98:.1f} {unit}; largest jump {gmax:.0f}, "
+                     f"median visible seam {med_seam:.1f} {unit} per 0.5° step", fontsize=12)
+        cb = fig.colorbar(pm, ax=ax, shrink=0.9, pad=0.02, extend="max")
+        cb.set_label(f"|Δ prediction| across neighboring cells ({unit})")
         fig.savefig(OUT / f"{tname}_rf_discontinuity_map.png", dpi=160)
         plt.close(fig)
 
