@@ -64,3 +64,24 @@ interpretable ones). Every model family lands within ~0.6 of XGBoost though:
 the features, not the learner, carry most of the skill. Figure:
 `model_families_latlon_vs_full.png`; full feature list:
 `full_model_features.csv` (37-feature union, family-labelled).
+
+## Follow-up 2: the MoE blend with random-forest experts
+
+`run_moe_rf_experts.py` — the recommended architecture unchanged (same gates,
+winning alpha/K/w, locked folds), every XGBoost expert swapped for a random
+forest (300 trees, min_samples_leaf=50). Diagnostic only, not on Drive.
+
+| OOF MAE | global TCHP | Gulf TCHP | global D26 | Gulf D26 |
+|---|---|---|---|---|
+| blend, XGB experts (recommended) | 11.189 | 12.41 | 10.553 | 11.52 |
+| blend, RF experts | 11.233 | 12.49 | 10.679 | **11.26** |
+| dedicated Gulf-local model (reference) | – | 12.37 | – | 11.23 |
+
+Findings: (1) the architecture transfers — the RF blend beats the RF single
+global model (11.23 vs 11.42 TCHP) by about as much as the XGB blend beats its
+single model, so the mixture's gain is learner-independent; (2) XGB experts
+stay ahead globally (by 0.04 TCHP / 0.13 D26); (3) **RF experts nearly close
+the Gulf D26 gap** (11.26 vs 11.52 for XGB experts, against the 11.23
+dedicated-model bound) — deep trees with a 50-sample leaf floor appear to
+specialise better than depth-4 boosting at ~2.7k effective rows. Suggests a
+possible hybrid for MoE v3: RF expert for the Gulf, XGB elsewhere.
