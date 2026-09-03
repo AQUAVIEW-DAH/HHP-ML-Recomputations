@@ -1,0 +1,59 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.6cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{parskip}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[R]{\footnotesize\textcolor{gray}{HHP RTOFS-correction project --- model primers, 2026-09-03}}
+\fancyfoot[L]{\footnotesize\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\begin{document}
+
+{\huge\bfseries Decision Trees and Random Forests}\\[2.5mm]
+{\large\itshape How averaging many randomized trees fits the RTOFS error, and what its boxes mean}\\[2mm]
+\hrule\vspace{5mm}
+
+\subsection*{The problem these models solve}
+NOAA's ocean forecast model RTOFS reports, for any place and day, the Tropical Cyclone Heat Potential (TCHP, the heat stored above the 26 degree isotherm) and D26 (the depth of that isotherm). Autonomous Argo floats measure the same two quantities at scattered points. Comparing the two at the same place and day shows the forecast is biased. We therefore learn a correction: a function that predicts the forecast's error from information available at forecast time, so it can be subtracted everywhere.
+
+Formally, we have n observation pairs. For pair i, let $x_i$ be a vector of d known quantities (position, calendar, and fields taken from the forecast itself) and let
+
+\[ \delta_i \;=\; y_i^{\mathrm{Argo}} - y_i^{\mathrm{RTOFS}} \]
+be the observed error of the forecast. We seek a function f minimizing the expected size of $\delta-f(x)$, and the corrected forecast is then
+
+\[ \hat{y}(x) \;=\; y^{\mathrm{RTOFS}}(x) + f(x). \]
+All models below are different ways of constructing f from the n samples. Their quality is measured by the mean absolute error of the corrected forecast on dates that come after every date used to fit f, so the score always reflects prediction of the future, never memory of the past.
+
+\section*{1. A single decision tree}
+A decision tree represents f as a piecewise-constant function. It partitions the input space into axis-aligned boxes and assigns one constant prediction to each box. The partition is built greedily. Start with all n samples in one box. Consider every coordinate j of x and every threshold t: they define a candidate split of the box into the samples with $x_j\le t$ and those with $x_j>t$. Choose the split that most reduces the squared-error cost
+
+\[ \mathrm{cost}(S) \;=\; \sum_{i \in S} (\delta_i - \bar{\delta}_S)^2, \]
+where $\bar{\delta}_S$ is the mean of the targets in box S. Repeat inside each new box until a stopping rule fires, for example a box holding fewer than a set number of samples. The final boxes are called leaves, and the prediction for a new x is simply the mean target of the leaf that x falls into.
+
+Two properties matter. First, the function is discontinuous: it jumps at box boundaries. Second, a deep tree is a low-bias, high-variance estimator: it can fit almost any shape, but the boxes it picks depend strongly on which samples it saw, so two trees fitted to two random halves of the data can differ a lot.
+
+\section*{2. The random forest: averaging many trees}
+A random forest reduces that variance by averaging B trees that are deliberately decorrelated. Tree b is fitted on a bootstrap resample of the data (n samples drawn with replacement), and at every split only a random subset of the d coordinates is considered. The forest predicts the average
+
+\[ f(x) \;=\; \frac{1}{B}\sum_{b=1}^{B} T_b(x). \]
+The reason this works is the usual variance-of-a-mean argument. If each tree has variance $\sigma^2$ and the average pairwise correlation between trees is $\rho$, the variance of the average is
+
+\[ \rho\,\sigma^2 + \frac{1-\rho}{B}\,\sigma^2, \]
+so growing B kills the second term, and the injected randomness (bootstrap plus random coordinate subsets) keeps $\rho$ small so the first term is small too. The averaged function is still piecewise constant, but with B overlapping partitions the jumps are much smaller and more numerous than for one tree.
+
+\section*{3. How we apply it to the RTOFS correction}
+We use forests of B = 300 trees, grown until each leaf holds at least 50 samples. The leaf floor is our main protection against reading noise as signal: no prediction is ever the mean of fewer than 50 real profile errors.
+
+\begin{itemize}
+\item In the position-only experiment requested by Dr. Jacobs, the inputs are latitude and longitude alone, with TCHP and D26 set to 0 where the water never reaches 26 degrees. The forest's boxes then become literal rectangles on the map. A single 64-leaf tree, drawn as boxes, finds the tropical band edges, the West Pacific warm pool, and the Gulf of Mexico without guidance.
+\item On position alone the forest is the best of the tested models for TCHP (error 16.6 down to 12.4) because deep trees carve two dimensions finely.
+\item On the full 35 inputs the forest reaches 11.42 (TCHP) and 10.93 m (D26), a close second to gradient boosting. Its predictions jump by about 1.3 units at a typical box boundary, which would appear as faint rectangular seams if drawn as a map.
+\end{itemize}
+\subsection*{Where it is strong and weak here}
+Strong: very robust, almost no tuning, handles the sharp coastline-like transitions in the data, and the boxes are directly interpretable. Weak: predictions are discontinuous, it cannot extrapolate beyond the range of what it saw (every prediction is an average of training targets), and averaging makes it slightly blunter than boosting when many partially redundant inputs each carry a little signal.
+
+\end{document}

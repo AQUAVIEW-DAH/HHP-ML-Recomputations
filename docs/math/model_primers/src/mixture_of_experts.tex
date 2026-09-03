@@ -1,0 +1,65 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.6cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{parskip}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[R]{\footnotesize\textcolor{gray}{HHP RTOFS-correction project --- model primers, 2026-09-03}}
+\fancyfoot[L]{\footnotesize\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\begin{document}
+
+{\huge\bfseries The Mixture-of-Experts Blend}\\[2.5mm]
+{\large\itshape The recommended model: regional and regime specialists behind two gates}\\[2mm]
+\hrule\vspace{5mm}
+
+\subsection*{The problem these models solve}
+NOAA's ocean forecast model RTOFS reports, for any place and day, the Tropical Cyclone Heat Potential (TCHP, the heat stored above the 26 degree isotherm) and D26 (the depth of that isotherm). Autonomous Argo floats measure the same two quantities at scattered points. Comparing the two at the same place and day shows the forecast is biased. We therefore learn a correction: a function that predicts the forecast's error from information available at forecast time, so it can be subtracted everywhere.
+
+Formally, we have n observation pairs. For pair i, let $x_i$ be a vector of d known quantities (position, calendar, and fields taken from the forecast itself) and let
+
+\[ \delta_i \;=\; y_i^{\mathrm{Argo}} - y_i^{\mathrm{RTOFS}} \]
+be the observed error of the forecast. We seek a function f minimizing the expected size of $\delta-f(x)$, and the corrected forecast is then
+
+\[ \hat{y}(x) \;=\; y^{\mathrm{RTOFS}}(x) + f(x). \]
+All models below are different ways of constructing f from the n samples. Their quality is measured by the mean absolute error of the corrected forecast on dates that come after every date used to fit f, so the score always reflects prediction of the future, never memory of the past.
+
+\section*{1. Why one global function is not enough}
+A single f fitted to the whole ocean must average over regions whose error physics differ. The Gulf of Mexico is the clearest case: its errors follow the Loop Current, and a global fit dilutes that signal under two hundred times more data from elsewhere. A mixture of experts replaces the single f with several specialist functions plus a rule, called a gate, deciding which specialists speak for a given x and with what weight.
+
+\section*{2. The architecture of our recommended model}
+Our corrected forecast blends two mixtures that share the same inputs and the same base learner (gradient-boosted trees, see the XGBoost primer) but partition the ocean differently:
+
+\[ \hat{y}(x) \;=\; y^{\mathrm{RTOFS}}(x) + \alpha\, f_{\mathrm{geo}}(x) + (1-\alpha)\, f_{\mathrm{regime}}(x). \]
+\subsection*{2a. Geographic experts with a hard gate}
+Five experts own five fixed regions (Gulf of Mexico, Atlantic, Indian, West Pacific, East Pacific and the rest). The gate is hard: each location belongs to exactly one region, and only its expert is consulted there. Crucially, each expert is fitted on ALL samples, but with weights
+
+\[ w_i = 1\ \mathrm{inside\ the\ region}, \qquad w_i = 0.05\ \mathrm{outside}, \]
+meaning every squared error in the fitting criterion is multiplied by $w_i$. The expert is a local specialist with a weak global prior: foreign data cannot dominate, but it fills gaps and stabilizes the fit where local data is thin. The weight 0.05 was chosen by trying 0.05, 0.10, 0.15 and 0.25; the smallest won everywhere, meaning the experts want strong specialization.
+
+\subsection*{2b. Learned regimes with a soft gate}
+The second mixture lets the data define its own regions, in the space of physical state rather than position. Six standardized quantities (sea surface height, temperature excess above 26 degrees, mixed-layer thickness, two measures of local spatial variability, and distance from the equator) are clustered by k-means, which picks K centers minimizing
+
+\[ \sum_{i} \min_{k} \Vert z_i - c_k \Vert^2 \]
+over the standardized state vectors $z_i$. One expert is fitted per cluster with the same 1 / 0.05 weighting. At prediction time the gate is soft: with $d_k$ the distance of the point's state to center k,
+
+\[ g_k(x) = \frac{\exp(-d_k/T)}{\sum_{k'} \exp(-d_{k'}/T)}, \qquad f_{\mathrm{regime}}(x)=\sum_k g_k(x)\, f_k(x), \]
+with T set to the median distance, so several experts blend smoothly. Because the state vector contains no coordinates, this gate generalizes to locations never sampled: a point is served by the experts for water that behaves like its water.
+
+\subsection*{2c. The blend}
+The two mixtures err differently, so a convex combination beats both. The chosen settings are $\alpha = 0.75$, K = 6 for TCHP and $\alpha = 0.5$, K = 12 for D26.
+
+\section*{3. Results and reading}
+\begin{itemize}
+\item Corrected error 11.19 (TCHP) and 10.55 m (D26) globally, against 11.40 / 10.76 for the best single global model and 16.6 / 14.9 for the raw forecast.
+\item In the Gulf, the mixture recovers most of the advantage of a dedicated Gulf-only model (12.41 vs 12.37 for TCHP; 11.52 vs 11.23 for D26) while remaining one global system.
+\item Every region prefers its own expert over any foreign expert, which validates the partition.
+\end{itemize}
+\subsection*{Where it is strong and weak here}
+Strong: captures regional error physics a global fit averages away, at no external data cost. Weak: more moving parts (weights, K, the blend factor) chosen on the same scores they are reported on, a mild selection bias we guard by checking consistency across two targets and two scopes; and the Gulf D26 gap to a dedicated local model is narrowed, not closed.
+
+\end{document}

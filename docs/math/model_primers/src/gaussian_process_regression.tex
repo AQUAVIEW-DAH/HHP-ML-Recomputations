@@ -1,0 +1,57 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.6cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{parskip}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[R]{\footnotesize\textcolor{gray}{HHP RTOFS-correction project --- model primers, 2026-09-03}}
+\fancyfoot[L]{\footnotesize\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\begin{document}
+
+{\huge\bfseries Gaussian Process Regression}\\[2.5mm]
+{\large\itshape Optimal interpolation that learns its own length scales}\\[2mm]
+\hrule\vspace{5mm}
+
+\subsection*{The problem these models solve}
+NOAA's ocean forecast model RTOFS reports, for any place and day, the Tropical Cyclone Heat Potential (TCHP, the heat stored above the 26 degree isotherm) and D26 (the depth of that isotherm). Autonomous Argo floats measure the same two quantities at scattered points. Comparing the two at the same place and day shows the forecast is biased. We therefore learn a correction: a function that predicts the forecast's error from information available at forecast time, so it can be subtracted everywhere.
+
+Formally, we have n observation pairs. For pair i, let $x_i$ be a vector of d known quantities (position, calendar, and fields taken from the forecast itself) and let
+
+\[ \delta_i \;=\; y_i^{\mathrm{Argo}} - y_i^{\mathrm{RTOFS}} \]
+be the observed error of the forecast. We seek a function f minimizing the expected size of $\delta-f(x)$, and the corrected forecast is then
+
+\[ \hat{y}(x) \;=\; y^{\mathrm{RTOFS}}(x) + f(x). \]
+All models below are different ways of constructing f from the n samples. Their quality is measured by the mean absolute error of the corrected forecast on dates that come after every date used to fit f, so the score always reflects prediction of the future, never memory of the past.
+
+\section*{1. A probability distribution over functions}
+Gaussian process regression treats the unknown f itself as random. A Gaussian process is a distribution over functions with the property that the values of f at any finite set of points are jointly Gaussian. It is fully specified by a mean (taken as zero after centering) and a covariance kernel
+
+\[ \mathrm{Cov}(f(x), f(x')) = k(x, x'), \]
+which encodes one belief: points close in input space have similar function values. We use the anisotropic Gaussian kernel
+
+\[ k(x,x') = \sigma_f^2\, \exp\left(-\sum_{j=1}^{d} \frac{(x_j-x_j')^2}{2\,\ell_j^{\,2}}\right), \]
+with one length scale $\ell_j$ per input direction: the function is allowed to vary quickly along directions with small $\ell_j$ and slowly along directions with large $\ell_j$.
+
+\section*{2. From prior to prediction}
+Observed targets are modeled as $\delta_i = f(x_i) + \epsilon_i$ with Gaussian noise of variance $\sigma_n^2$. Because everything is jointly Gaussian, conditioning on the n observations is exact linear algebra. With K the n-by-n matrix $K_{ij}=k(x_i,x_j)$ and $k_*$ the vector $k(x_i, x_*)$, the predictive mean and variance at a new point $x_*$ are
+
+\[ \mu(x_*) = k_*^{T} (K+\sigma_n^2 I)^{-1} \delta, \qquad v(x_*) = k(x_*,x_*) - k_*^{T}(K+\sigma_n^2 I)^{-1} k_* . \]
+The mean is a weighted average of all observed errors, with weights determined by the kernel, and the variance says how uncertain the estimate is, growing far from data. Oceanographers will recognize this as the same mathematics as optimal interpolation / objective mapping; the machine-learning form simply also learns the kernel constants ($\sigma_f, \ell_1..\ell_d, \sigma_n$) from the data, by maximizing the likelihood of the observations.
+
+The price is the inverse of an n-by-n matrix, whose cost grows with the cube of n, so exact fits are limited to a few thousand samples; we fit on a random subsample of 3,000 pairs.
+
+\section*{3. How we apply it to the RTOFS correction}
+\begin{itemize}
+\item In the position-only experiment the two length scales were learned as roughly 7.5 degrees in latitude and 33 (TCHP) to 62 (D26) degrees in longitude. The error field really is stretched east to west, exactly the anisotropy Dr. Jacobs anticipated, and the resulting map is smooth with no box seams.
+\item On position alone it was the best model for D26 (12.17 m) and close to the forest for TCHP.
+\item On the full 35 inputs it was the weakest family (12.05 / 11.39): one length scale per direction over 35 standardized inputs is a blunt instrument compared to two interpretable spatial directions, and 3,000 samples cannot pin down 37 kernel constants well.
+\end{itemize}
+\subsection*{Where it is strong and weak here}
+Strong: principled uncertainty at every point, smooth fields suitable for published maps, and interpretable length scales that answered a physical question directly. Weak: cubic cost in n forces subsampling, and its advantage fades in high dimensions.
+
+\end{document}

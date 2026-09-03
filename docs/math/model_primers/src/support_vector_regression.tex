@@ -1,0 +1,56 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.6cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{parskip}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[R]{\footnotesize\textcolor{gray}{HHP RTOFS-correction project --- model primers, 2026-09-03}}
+\fancyfoot[L]{\footnotesize\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\begin{document}
+
+{\huge\bfseries Support Vector Regression}\\[2.5mm]
+{\large\itshape Fitting a smooth function with a tolerance tube and a Gaussian kernel}\\[2mm]
+\hrule\vspace{5mm}
+
+\subsection*{The problem these models solve}
+NOAA's ocean forecast model RTOFS reports, for any place and day, the Tropical Cyclone Heat Potential (TCHP, the heat stored above the 26 degree isotherm) and D26 (the depth of that isotherm). Autonomous Argo floats measure the same two quantities at scattered points. Comparing the two at the same place and day shows the forecast is biased. We therefore learn a correction: a function that predicts the forecast's error from information available at forecast time, so it can be subtracted everywhere.
+
+Formally, we have n observation pairs. For pair i, let $x_i$ be a vector of d known quantities (position, calendar, and fields taken from the forecast itself) and let
+
+\[ \delta_i \;=\; y_i^{\mathrm{Argo}} - y_i^{\mathrm{RTOFS}} \]
+be the observed error of the forecast. We seek a function f minimizing the expected size of $\delta-f(x)$, and the corrected forecast is then
+
+\[ \hat{y}(x) \;=\; y^{\mathrm{RTOFS}}(x) + f(x). \]
+All models below are different ways of constructing f from the n samples. Their quality is measured by the mean absolute error of the corrected forecast on dates that come after every date used to fit f, so the score always reflects prediction of the future, never memory of the past.
+
+\section*{1. Regression with a tolerance tube}
+Support vector regression fits a function while ignoring errors smaller than a chosen tolerance $\varepsilon$. Only points falling outside the tube of half-width $\varepsilon$ around the function influence the fit. For a linear function $f(x)=w^{T}x+b$, the fit solves
+
+\[ \min_{w,b} \;\ \frac{1}{2}\Vert w\Vert^2 \;+\; C\sum_{i=1}^{n} \max(0,\ |\delta_i - f(x_i)| - \varepsilon), \]
+a convex problem. The first term prefers flat, simple functions; the second charges for points outside the tube at a rate C. Small C means smoothness matters more than fitting every point; large C the reverse. The solution turns out to depend only on the points on or outside the tube, called the support vectors; all comfortably fitted points could be deleted without changing f.
+
+\section*{2. The kernel trick}
+A linear function is too rigid for our problem. The kernel trick fixes this without ever building nonlinear coordinates explicitly. The solution of the problem above can be written using only inner products between input vectors, so we may replace every inner product by a kernel function k(x, x'). The fitted function becomes
+
+\[ f(x) = \sum_{i \in \mathrm{SV}} \beta_i\, k(x_i, x) + b, \]
+a weighted sum of bumps centered on the support vectors. We use the Gaussian (radial basis function) kernel
+
+\[ k(x,x') = \exp(-\gamma\Vert x-x'\Vert^2), \]
+whose one parameter $\gamma$ sets the width of the bumps: large $\gamma$ gives narrow bumps and a wiggly f, small $\gamma$ gives broad bumps and a smooth f. This is mathematically equivalent to linear regression in an infinite-dimensional space of features, but computed entirely through the n-by-n kernel matrix.
+
+\section*{3. How we apply it to the RTOFS correction}
+Inputs are standardized (each coordinate scaled to unit variance) because the kernel uses Euclidean distance. The cost of solving the problem grows roughly with the square of n, so we fit on a random subsample of 20,000 pairs. We use C = 50 and $\varepsilon = 1$, i.e. errors below one unit are free.
+
+\begin{itemize}
+\item On position alone, the single isotropic width could not fit both the sharp north-south structure and the broad east-west structure: the fit came out too smooth and was the weakest smooth model (13.5 TCHP).
+\item On the full 35 inputs it reaches 11.63 (TCHP) and 11.20 m (D26), behind both tree families but ahead of the Gaussian process.
+\end{itemize}
+\subsection*{Where it is strong and weak here}
+Strong: convex problem with a unique solution, produces a smooth function with no box seams, robust to outliers because of the tolerance tube. Weak: one global bump width for all directions and places, expensive beyond a few tens of thousands of samples, and its two constants (C, $\varepsilon$) must be chosen by hand.
+
+\end{document}
