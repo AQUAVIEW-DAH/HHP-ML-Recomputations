@@ -129,3 +129,82 @@ useful first pass, not a pruning rule.
 Boundary error remains 31 m after everything, on 2.6% of rows carrying ~21% of
 the D26 error budget. Open question for Dr. Jacobs: the D26 := 0 convention
 creates that cliff at the isotherm edge; is that the behaviour he wants scored?
+
+---
+
+# Follow-up, 2026-09-16: the matrix he actually asked for, and what compresses
+
+Script `run_redundancy_followup.py`; outputs `OHC/output/redundancy_followup_20260916/`.
+
+## 10. The correlation matrix extended with the target errors
+
+His ask was the N x N feature cross-correlation *plus* the correlation of each
+feature to the TCHP error and the D26 error. We had the latter only as a CSV
+column; it is now four extra rows and columns on the matrix itself (signed and
+absolute error, both targets, in both recipes), pinned to the top-left edge in
+red so relatedness-to-target and relatedness-to-each-other read off one figure.
+`{t}_correlation_matrix_with_error.png`.
+
+Reading it as a 2x2:
+
+* **bright block, dark against the error strip = delete all but one.** The
+  clearest case is the eight calendar encodings, which form a bright block
+  among themselves and are essentially black against every error row. That
+  matches the prune/graft result exactly (the calendar family contributes ~0
+  in both directions).
+* **isolated and dark against the error strip = delete outright.** Three
+  features are black almost everywhere: `nearest_rtofs_grid_distance_km`,
+  `model_steric_1000_ref2000_m`, `year`. All three were also negative in both
+  prune and graft. These are the safest removals we have identified.
+* **bright block with visible error correlation = keep one or two.** The
+  raw-value cluster (`model_interp_d26_m`, `model_interp_tchp`,
+  `d26_minus_mlt_m`, the TCHP local stds).
+* **the counterexample, marked in blue.** `model_temp_excess_26c` is dark
+  against the whole error strip and bright against the physics block, so the
+  figure says delete it. It is the most valuable boundary-case feature we
+  have. The annotation is on the figure deliberately.
+
+## 11. How many directions of *useful* information? No low-dimensional answer
+
+Three compressions compared at equal component counts
+(`skill_vs_components_three_ways.png`):
+
+| components kept | TCHP: variance | relevance | PLS | D26: variance | relevance | PLS |
+|---|---|---|---|---|---|---|
+| 5 | 13.11 | 13.33 | **12.10** | 13.01 | 12.37 | **11.55** |
+| 20 | 12.08 | 12.00 | **11.89** | 12.03 | 11.60 | **11.34** |
+| all raw inputs | 11.40 | | | 10.76 | | |
+
+* Supervised ordering clearly helps: partial least squares with **5**
+  components matches or beats variance-ordered principal components with
+  **20**, a fourfold compression, and the gap is largest for D26.
+* But **no linear compression reaches the raw inputs**, even choosing
+  directions with the target in hand: PLS at 20 components is still 0.5
+  (TCHP) and 0.6 m (D26) short.
+* Meanwhile a *full-rank* rotation is harmless (34 principal components gave
+  11.394 against 11.397 raw). So the loss comes from discarding directions,
+  not from rotating the axes.
+* `component_importance_vs_rank.png` shows why. The model's splitting gain per
+  principal component does not decay with eigenvalue rank at all; the largest
+  contributions are PC6 and PC2 (TCHP) and PC6 and PC19 (D26), with meaningful
+  gain out to PC35.
+
+**Conclusion.** The inputs are redundant in their linear structure (about 12
+effective directions of variation) but their predictive content is not
+compressible into a small linear subspace. The explanation is the same one the
+boundary case gave us: value that lives in a threshold effect, such as
+`model_temp_excess_26c` mattering only within about 0.6 degrees of zero, cannot
+be isolated by any linear combination, because mixing it with other variables
+destroys the threshold. Linear screening and linear compression fail for the
+same reason.
+
+## 12. What the trees reach for first
+
+`first_splits.png`, gain in the first three levels. TCHP: `abs_lat` 43%,
+`model_ssh_m` 15%, `model_interp_d26_m` 8%, `model_tchp_anom_from_1deg_mean`
+7%. D26: `abs_lat` 41%, `model_d26_anom_from_1deg_mean` 30%, `lat` 10%,
+`model_ssh_m` 7%. So the opening cuts are distance from the equator, how
+energetic the local ocean is, and how much of a local bump the model claims.
+`model_temp_excess_26c` is near the bottom here (0.2% / 2%), which is
+consistent with it acting deep in the trees on a small subpopulation rather
+than as a global split.
