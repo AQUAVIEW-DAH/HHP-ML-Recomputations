@@ -45,7 +45,7 @@ from OHC.benchmark_rtofs_argo_tabular_models import TARGETS, _build_forward_fold
 
 OUT = Path("/home/suramya/HHP-Prediction/OHC/output/redundancy_followup_20260916")
 RECIPES = {"tchp": "global_pruned_plus_neighborhood", "d26": "drop_both_lat_interactions_plus_neighborhood"}
-M_SWEEP = [2, 5, 8, 12, 20]
+M_SWEEP = [2, 5, 8, 12, 20, 28]   # the full-rank point d is appended per target
 REF = {"tchp": 11.397, "d26": 10.755}
 HIGHLIGHT = "model_temp_excess_26c"
 ERR_COLS = ["delta_tchp_kj_per_cm2", "delta_d26_m"]
@@ -139,15 +139,20 @@ def part2(work, cols, X, target, fold_note):
         v = np.isfinite(oof)
         return float(np.abs(y_mod + oof - y_obs)[v].mean())
 
-    for m in M_SWEEP:
-        for mode in ("pca_relevance", "pls"):
+    for m in M_SWEEP + [d]:
+        for mode in ("pca_variance", "pca_relevance", "pls"):
+            if mode == "pls" and m > min(d, 40):
+                continue
             oof = np.full(len(work), np.nan)
             for fold in folds:
                 tr = date_str.isin(set(fold["train_dates"])).to_numpy()
                 va = date_str.isin(set(fold["val_dates"])).to_numpy()
                 sc = StandardScaler().fit(Xv[tr])
                 Ztr, Zva = sc.transform(Xv[tr]), sc.transform(Xv[va])
-                if mode == "pca_relevance":
+                if mode == "pca_variance":
+                    p = PCA(n_components=m, random_state=0).fit(Ztr)
+                    Ttr, Tva = p.transform(Ztr), p.transform(Zva)
+                elif mode == "pca_relevance":
                     p = PCA(n_components=d, random_state=0).fit(Ztr)
                     Ttr, Tva = p.transform(Ztr), p.transform(Zva)
                     rel = np.array([abs(np.corrcoef(Ttr[:, j], y[tr])[0, 1]) for j in range(d)])
@@ -211,19 +216,26 @@ def main() -> None:
     corr = pd.concat(corr_rows); corr.to_csv(OUT / "feature_vs_error_correlations.csv", index=False)
     cur = pd.concat(curves); cur.to_csv(OUT / "skill_vs_components_three_ways.csv", index=False)
 
-    fig, axes = plt.subplots(1, 2, figsize=(15, 6), constrained_layout=True)
+    fig, axes = plt.subplots(1, 2, figsize=(15.5, 6.2), constrained_layout=True)
     for ax, t in zip(axes, ("tchp", "d26")):
-        v = var_curve[(var_curve.target == t) & (var_curve.n_components.isin(M_SWEEP))]
-        ax.plot(v.n_components, v.mae, "o-", color="#94a3b8", label="principal components, ordered by variance")
-        for mode, c, lab in (("pca_relevance", "#2563eb", "principal components, ordered by relevance to the error"),
+        for mode, c, lab in (("pca_variance", "#94a3b8", "principal components, ordered by variance"),
+                             ("pca_relevance", "#2563eb", "principal components, ordered by relevance to the error"),
                              ("pls", "#16a34a", "partial least squares (built against the error)")):
-            s = cur[(cur.target == t) & (cur.method == mode)]
-            ax.plot(s.n_components, s.mae, "o-", color=c, label=lab)
-        ax.axhline(REF[t], color="#166534", ls="--", lw=1.2, label=f"all raw inputs ({REF[t]:.2f})")
+            q = cur[(cur.target == t) & (cur.method == mode)].sort_values("n_components")
+            ax.plot(q.n_components, q.mae, "o-", color=c, label=lab)
+        full = cur[(cur.target == t) & (cur.method == "pca_variance")].sort_values("n_components").iloc[-1]
+        ax.plot(full.n_components, full.mae, "D", ms=11, mfc="none", mec="#b91c1c", mew=2.0,
+                label="all directions kept: cost of ROTATING alone")
+        ax.axhline(REF[t], color="#166534", ls="--", lw=1.2, label=f"all raw inputs, unrotated ({REF[t]:.2f})")
+        ax.annotate("this gap is the axis-alignment\npenalty, not lost information",
+                    xy=(full.n_components, full.mae), xytext=(-150, 34), textcoords="offset points",
+                    fontsize=8.5, color="#b91c1c",
+                    arrowprops=dict(arrowstyle="->", color="#b91c1c", lw=1.2))
         ax.set_xlabel("number of components kept"); ax.set_ylabel("out-of-fold MAE")
-        ax.set_title(t.upper()); ax.grid(alpha=0.15); ax.legend(fontsize=8.5)
+        ax.set_title(t.upper()); ax.grid(alpha=0.15); ax.legend(fontsize=8)
     fig.suptitle("How many independent directions of USEFUL information do the inputs carry?\n"
-                 "ordering components by variance is not the same as ordering them by what predicts the error", fontsize=13)
+                 "corrected 2026-09-23: the earlier version never rotated at the final point, which inverted the conclusion",
+                 fontsize=12.5)
     fig.savefig(OUT / "skill_vs_components_three_ways.png", dpi=160)
     plt.close(fig)
 

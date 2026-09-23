@@ -182,9 +182,12 @@ def main() -> None:
         tr_dates = df.loc[tr, "_date"].to_numpy()
         uniq_tr = np.unique(tr_dates)
         boots = []
+        by_date = {d: np.flatnonzero(tr & (df["_date"] == d).to_numpy()) for d in uniq_tr}
         for b in range(BOOT_MODELS):
-            pick = set(rng.choice(uniq_tr, size=len(uniq_tr), replace=True))
-            m2 = tr & df["_date"].isin(pick).to_numpy()
+            # a real bootstrap: dates drawn with replacement KEEP their multiplicity,
+            # so each replicate has the same size as the training set
+            pick = rng.choice(uniq_tr, size=len(uniq_tr), replace=True)
+            m2 = np.concatenate([by_date[d] for d in pick if len(by_date[d])])
             rf_b = RandomForestRegressor(n_estimators=BOOT_TREES, min_samples_leaf=50, n_jobs=16,
                                          random_state=SEED + b)
             rf_b.fit(X_all[m2], delta0[m2])
@@ -202,8 +205,9 @@ def main() -> None:
         gpy, gpx = np.gradient(grid_pred["gpr"])
         gp_grad = np.hypot(gpy, gpx)
         tree = cKDTree(latlon_to_xyz(df.loc[tr, "lat"].to_numpy(float), df.loc[tr, "lon"].to_numpy(float)))
+        radius_deg = 1.0
         counts = tree.query_ball_point(latlon_to_xyz(glat.ravel(), glon.ravel()),
-                                       r=2.0 * np.sin(np.deg2rad(1.0) / 2.0) * 2.0, workers=-1,
+                                       r=2.0 * np.sin(np.deg2rad(radius_deg) / 2.0), workers=-1,
                                        return_length=True).reshape(glat.shape)
         sel = seam > 1.0
         in_gom = ((glat >= GOM["lat0"]) & (glat <= GOM["lat1"]) &
@@ -229,7 +233,7 @@ def main() -> None:
         sub = rng.choice(np.flatnonzero(sel.ravel()), size=min(4000, int(sel.sum())), replace=False)
         sc2 = ax.scatter(counts.ravel()[sub], seam.ravel()[sub], c=gp_grad.ravel()[sub], s=6, cmap="viridis", alpha=0.6)
         ax.set_xscale("log"); ax.set_yscale("log")
-        ax.set_xlabel("training profiles within ~1° (density)")
+        ax.set_xlabel(f"training profiles within {radius_deg:.0f}° (density)")
         ax.set_ylabel(f"seam size ({unit})")
         ax.set_title("seam size vs data density, colored by the GP's real gradient")
         fig.colorbar(sc2, ax=ax, shrink=0.9).set_label(f"GP field gradient ({unit}/0.5°)")

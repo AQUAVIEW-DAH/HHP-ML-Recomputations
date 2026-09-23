@@ -94,11 +94,16 @@ def _interpolate_neighbor_values(
         finite_r = finite[remaining]
         weights = np.zeros_like(vals_r, dtype=np.float64)
         weights[finite_r] = 1.0 / np.maximum(dist_r[finite_r], 1e-6) ** 2
+        # Missing neighbours carry zero weight, but must also be zeroed in the
+        # values: 0.0 * nan is nan, which would poison the whole weighted sum
+        # whenever any one of the k neighbours is land or below the 26 C
+        # threshold. That failure concentrated on the isotherm edge.
+        vals_safe = np.where(finite_r, vals_r, 0.0)
         sw = weights.sum(axis=1)
         good = sw > 0
         if np.any(good):
             rows = np.where(remaining)[0][good]
-            out[rows] = np.sum(weights[good] * vals_r[good], axis=1) / sw[good]
+            out[rows] = np.sum(weights[good] * vals_safe[good], axis=1) / sw[good]
 
     return out.astype(np.float32)
 

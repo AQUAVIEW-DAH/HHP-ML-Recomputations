@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.cluster.hierarchy import leaves_list, linkage
+from scipy.spatial.distance import squareform
 from scipy.stats import spearmanr
 from sklearn.decomposition import PCA
 from sklearn.impute import SimpleImputer
@@ -68,7 +69,9 @@ def main() -> None:
                                "max_abs_corr_to_others": absR[j].max(),
                                "jacobs_score": abs(r_y[j]) - absR[j].sum(),
                                "normalised_score": abs(r_y[j]) - absR[j].sum() / (d - 1)})
-        order = leaves_list(linkage(1 - np.abs(R), method="average"))
+        dmat = np.clip(1.0 - np.abs(R), 0, None)
+        np.fill_diagonal(dmat, 0.0)
+        order = leaves_list(linkage(squareform(dmat, checks=False), method="average"))
         fig, ax = plt.subplots(figsize=(14, 12), constrained_layout=True)
         im = ax.imshow(np.abs(R)[np.ix_(order, order)], cmap="magma", vmin=0, vmax=1)
         ax.set_xticks(range(d)); ax.set_yticks(range(d))
@@ -104,9 +107,10 @@ def main() -> None:
                 va = date_str.isin(set(fold["val_dates"])).to_numpy()
                 sc = StandardScaler().fit(X.to_numpy()[tr])
                 Ztr, Zva = sc.transform(X.to_numpy()[tr]), sc.transform(X.to_numpy()[va])
-                if m < d:
-                    pca = PCA(n_components=m, random_state=0).fit(Ztr)
-                    Ztr, Zva = pca.transform(Ztr), pca.transform(Zva)
+                # Always rotate, including at m = d, so the curve isolates the
+                # cost of DISCARDING directions from the cost of rotating them.
+                pca = PCA(n_components=m, random_state=0).fit(Ztr)
+                Ztr, Zva = pca.transform(Ztr), pca.transform(Zva)
                 model = abl._xgb_model(); model.fit(Ztr, y[tr])
                 oof[va] = model.predict(Zva)
             v = np.isfinite(oof)

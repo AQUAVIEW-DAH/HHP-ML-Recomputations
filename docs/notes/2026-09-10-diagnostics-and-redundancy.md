@@ -208,3 +208,109 @@ energetic the local ocean is, and how much of a local bump the model claims.
 `model_temp_excess_26c` is near the bottom here (0.2% / 2%), which is
 consistent with it acting deep in the trees on a small subpopulation rather
 than as a global split.
+
+---
+
+# CORRECTIONS, 2026-09-23 (post-audit)
+
+An external review plus a line-by-line audit found six defects. What changed.
+
+## C1. Interpolation bug (the only one that corrupts data)
+
+`_interpolate_neighbor_values`, duplicated in
+`build_rtofs_at_argo_points_multiyear.py` and
+`build_rtofs_global_physics_features_2024_2025.py`, multiplied zero weights by
+NaN values: `0.0 * nan = nan`, so one missing neighbour out of eight voided the
+whole interpolation. Because TCHP/D26 grids are NaN both on land **and** below
+26 C, the failure concentrated on the isotherm edge.
+
+* **Verified:** 41% of sampled "Argo warm, model missing" rows are artifacts;
+  1,426 such rows have model SST >= 26 C. The fix recovers exactly those rows
+  and changes previously-valid rows by 0.000000.
+* **Blast radius: 4 of 21 recent scripts** — those calling `.fillna(0)`:
+  `run_latlon_only_models`, `run_latlon_diagnostics`, `run_smooth_model_ladder`,
+  `run_prune_graft_emergence` Part 2. The other 17 use the warm filter, where a
+  bug-NaN removes a row rather than corrupting it. **Zero warm rows carry a
+  bug-affected physics feature** (structural: a row is warm only if all eight
+  TCHP neighbours are finite, and SSH/MLT/SST exist wherever TCHP does), so the
+  benchmark table and all MoE work are unaffected.
+* **Still to do:** rebuild the collocation and physics tables, then re-run those
+  four scripts. The boundary-emergence result is suspended until then, because
+  `temp_excess >= 0` on exactly the artifact rows, so the model may have been
+  detecting our bug rather than a physical edge.
+
+## C2. The PCA conclusion was inverted
+
+`if m < d:` skipped the rotation at the final point, so "all components" was
+raw standardised features. Corrected (all three methods now always rotated):
+
+| components | TCHP variance | relevance | PLS | D26 variance | relevance | PLS |
+|---|---|---|---|---|---|---|
+| 5 | 13.11 | 13.33 | **12.10** | 13.01 | 12.37 | **11.55** |
+| 20 | 12.09 | 12.00 | **11.89** | 12.03 | 11.60 | **11.34** |
+| all (34/35) | **12.01** | 12.03 | **11.85** | **11.51** | 11.51 | **11.32** |
+| all raw, unrotated | | 11.40 | | | 10.76 | |
+
+A full-rank rotation costs 0.61 (TCHP) and 0.76 (D26). PLS at full rank beats
+PCA at full rank, and PLS saturates by about 20 components. So the predictive
+information **is** compressible into roughly 20 linear directions; the residual
+gap to raw features is the axis-alignment penalty trees pay for rotated inputs,
+not information spread thinly across all directions. Section 11 said the
+opposite and is withdrawn.
+
+## C3. The noise floor is not well determined
+
+The original semivariogram pooled pairs across dates, mixing spatial and
+temporal variability. Same-day pairs give a much lower implied floor
+(TCHP 17.4 -> 14.4; D26 14.2 -> 7.5), but the same-day curve is noisy and
+non-monotonic at short range and its 0-10 km population is dominated by a few
+dense clusters. **The honest statement is a range, not a number:** a
+substantial share of the pooled nugget is temporal, so a model that knows the
+date faces a materially lower floor than 17.1, but this data cannot pin it
+down. The claim "within 3.6% of an unavoidable limit" is withdrawn, and with it
+the conclusion that there is little headroom for richer models.
+
+## C4. Correlation population mismatch
+
+`temp_excess` correlation with the TCHP error is +0.136 on warm rows, **+0.342
+on all rows**, -0.418 within boundary rows. The figure compared a warm-row
+correlation against an all-rows gain; it now shows both populations. The
+narrow point survives (correlation is a weak guide to value); "almost no
+correlation at all" does not.
+
+## C5. Methodological imprecision (conclusions survive)
+
+* The RF stability map used `set(...)` on a bootstrap draw, collapsing it to a
+  ~62% subsample. Now a true bootstrap. The old "74% of the tropics is
+  significant" was a conservative lower bound. The MAE-difference bootstrap was
+  always correct.
+* Seam-figure density radius was the chord for **2 deg**, labelled 1 deg. Fixed.
+* `linkage(1 - |R|)` passed a square matrix, which scipy reads as observation
+  vectors, so the heatmap ordering was not 1 - |corr|. Now uses `squareform`.
+* The SVR bump-width sweep stopped at x16, its own best value;
+  `run_ladder_corrections.py` extends it to x128 to bracket the optimum.
+* `rf_boot_std_median_smooth = 0.000` was reported as meaningful; it is zero
+  only because "smooth regions" are mostly the empty extratropics.
+
+## C6. Overreach in claims already sent to Dr. Jacobs
+
+* "Stratification is physically unimportant" rests on features present on
+  **11%** of warm rows. Supportable claim: no gain at current coverage.
+* The SSH-versus-steric comparison used a steric feature median-imputed on
+  **89%** of rows. Not valid as stated.
+* Both need a short correction email.
+
+## C7. New data-quality items (found in the audit, not in the review)
+
+* **Stencil edge bias.** The neighbourhood builder accepts a window mean from
+  as few as 25% valid cells and excludes sub-threshold cells rather than
+  treating them as zero. Mean `tchp_anom_from_1deg_mean` is **-2.09** near the
+  26 C edge against **+1.25** in the warm interior, where an unbiased anomaly
+  would be near zero in both. This is our highest-value feature and the bias
+  sits exactly where the boundary cases are. Also now inconsistent with the
+  zero-fill convention. Decide the window rule with the rebuild.
+* **11,536 warm rows share an exact (date, lat, lon) with another row**
+  (11,530 positions, up to 4 each), within-position Argo spread 2.65 kJ/cm2.
+  Not exact duplicates but distinct records at identical coordinates. Trace to
+  the Argo build; it inflates effective sample size and breaks independence
+  assumptions in the bootstrap.

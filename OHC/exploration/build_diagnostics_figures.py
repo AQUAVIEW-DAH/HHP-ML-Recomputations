@@ -40,6 +40,10 @@ OUT = Path("/home/suramya/HHP-Prediction/OHC/output/diagnostics_figures_20260910
 UNIT = {"tchp": "kJ/cm²", "d26": "m"}
 LABEL = {"rf": "random forest", "gpr": "Gaussian process", "svr_rbf": "SVR (RBF)",
          "xgb": "gradient boosting", "raw": "raw RTOFS"}
+HIGHLIGHT = "model_temp_excess_26c"
+# correlation of temp_excess with the error measured on ALL rows (zero-filled),
+# i.e. the same population the boundary experiment was run on
+ALL_ROW_CORR = {"tchp": 0.342, "d26": 0.280}
 COLOR = {"rf": "#2563eb", "gpr": "#16a34a", "svr_rbf": "#a855f7", "xgb": "#f59e0b", "raw": "#dc2626"}
 
 
@@ -210,25 +214,32 @@ def fig5() -> None:
             if r.gain > 0.05 or r["corr"] > 0.3:
                 ax.annotate(r["name"], (r["corr"], r.gain), textcoords="offset points",
                             xytext=(6, 4), fontsize=7.5, color="#334155")
-        te = j.loc["model_temp_excess_26c"] if "model_temp_excess_26c" in j.index else None
+        te = j.loc[HIGHLIGHT] if HIGHLIGHT in j.index else None
         if te is not None:
             row = bnd[(bnd.target == t)].reset_index(drop=True)
             i = row.index[row.step.str.contains("temperature excess")][0]
             bgain = row.mae_boundary.iloc[i - 1] - row.mae_boundary.iloc[i]
             wgain = row.mae_warm.iloc[i - 1] - row.mae_warm.iloc[i]
-            ax.scatter([te.abs_corr_to_error], [wgain], s=200, marker="*", c="#dc2626", zorder=5)
-            ax.annotate(f"model_temp_excess_26c\ncorrelation {te.abs_corr_to_error:.3f}; on warm rows it gains {wgain:+.2f}\n"
-                        f"but on the boundary rows it gains {bgain:+.2f} {UNIT[t]}",
-                        (te.abs_corr_to_error, wgain), textcoords="offset points", xytext=(20, 35),
-                        fontsize=9, color="#dc2626", weight="bold",
+            r_warm = float(te.abs_corr_to_error)
+            r_all = ALL_ROW_CORR[t]
+            ax.scatter([r_warm], [wgain], s=150, marker="*", c="#f59e0b", zorder=5)
+            ax.scatter([r_all], [wgain], s=220, marker="*", c="#dc2626", zorder=5)
+            ax.annotate("", xy=(r_all, wgain), xytext=(r_warm, wgain),
+                        arrowprops=dict(arrowstyle="->", color="#dc2626", lw=1.4, ls=":"))
+            ax.annotate(f"model_temp_excess_26c\n"
+                        f"correlation depends on the population it is measured on:\n"
+                        f"{r_warm:.3f} on warm rows, {r_all:.3f} on all rows\n"
+                        f"gain on warm rows {wgain:+.2f}, on boundary rows {bgain:+.2f} {UNIT[t]}",
+                        (r_all, wgain), textcoords="offset points", xytext=(-40, 40),
+                        fontsize=8.5, color="#dc2626", weight="bold",
                         arrowprops=dict(arrowstyle="->", color="#dc2626"))
         ax.set_xlabel("|Spearman correlation| with the forecast error")
         ax.set_ylabel(f"MAE gained when grafted onto the physical core ({UNIT[t]})")
         ax.set_title(f"{t.upper()}", fontsize=12)
         ax.grid(alpha=0.15)
-    fig.suptitle("Correlation with the error does not predict a feature's value\n"
-                 "the most useful features are not the most correlated, and the boundary-case detector has almost no correlation at all",
-                 fontsize=14)
+    fig.suptitle("Correlation with the error is a weak guide to a feature's value\n"
+                 "corrected 2026-09-23: the earlier version compared a warm-row correlation against an all-row gain",
+                 fontsize=13)
     fig.savefig(OUT / "correlation_vs_value.png", dpi=160)
     plt.close(fig)
     print("fig5 done")
