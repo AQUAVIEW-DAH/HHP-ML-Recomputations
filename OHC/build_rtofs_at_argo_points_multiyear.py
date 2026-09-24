@@ -108,11 +108,16 @@ def _interpolate_neighbor_values(
     return out.astype(np.float32)
 
 
+ARGO_META_COLS = ["cast_id", "platform", "profile_index", "n_levels", "max_depth_m"]
+
+
 def _load_argo_table(argo_path: Path, year: int) -> pd.DataFrame:
-    df = pd.read_parquet(
-        argo_path,
-        columns=["date", "year", "month", "lat", "lon", "tchp_kj_per_cm2", "d26_m", "error"],
-    )
+    # Read file by file and reindex: older batches never recorded profile_index,
+    # and a dataset-level column projection fails on any file missing a column.
+    # Sorted order reproduces the row order of the original dataset read.
+    wanted = ["date", "year", "month", "lat", "lon", "tchp_kj_per_cm2", "d26_m", "error"] + ARGO_META_COLS
+    files = sorted(Path(argo_path).glob("*.parquet"))
+    df = pd.concat([pd.read_parquet(f).reindex(columns=wanted) for f in files], ignore_index=True)
     df = df[df["error"].isna()].copy()
     if "year" in df.columns:
         df = df[df["year"] == year].copy()

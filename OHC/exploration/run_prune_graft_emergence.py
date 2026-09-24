@@ -38,7 +38,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import OHC.run_locked_xgb_physics_semi_ablation as abl  # noqa: E402
 from OHC.benchmark_rtofs_argo_tabular_models import TARGETS, _build_forward_folds, _prepare_features  # noqa: E402
 
-OUT = Path("/home/suramya/HHP-Prediction/OHC/output/prune_graft_20260910")
+OUT = Path("/home/suramya/HHP-Prediction/OHC/output/prune_graft_20260924_postfix")
 RECIPES = {"tchp": "global_pruned_plus_neighborhood", "d26": "drop_both_lat_interactions_plus_neighborhood"}
 
 CORE = {"tchp": ["model_interp_tchp_kj_per_cm2", "model_ssh_m", "model_temp_excess_26c",
@@ -170,6 +170,8 @@ def part2(df, fold_note):
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     df = abl._merge_feature_tables()
+    if "is_primary_profile" in df.columns:  # one row per Argo cast
+        df = df[df["is_primary_profile"].astype(bool)].reset_index(drop=True)
     fold_note = json.loads(abl.FOLD_PATH.read_text())
 
     p1 = part1(df, fold_note)

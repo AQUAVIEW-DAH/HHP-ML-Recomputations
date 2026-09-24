@@ -34,7 +34,7 @@ import OHC.run_locked_xgb_physics_semi_ablation as abl
 from OHC.benchmark_rtofs_argo_tabular_models import TARGETS, _build_forward_folds, _prepare_features
 from sklearn.impute import SimpleImputer
 
-OUT = Path("/home/suramya/HHP-Prediction/OHC/output/correction_decomposition_20260924")
+OUT = Path("/home/suramya/HHP-Prediction/OHC/output/correction_decomposition_20260924_postfix")
 RECIPES = {"tchp": "global_pruned_plus_neighborhood", "d26": "drop_both_lat_interactions_plus_neighborhood"}
 POS = ["lat", "lon", "abs_lat", "month_sin", "month_cos", "doy_sin", "doy_cos"]
 COLS = {"tchp": ("model_tchp_anom_from_1deg_mean", "model_tchp_local_std_1deg", "model_tchp_grad_mag_per_100km"),
@@ -69,7 +69,10 @@ def main() -> None:
         tn = t.name
         acol, scol, gcol = COLS[tn]
         full_cols = list(abl.FEATURE_SETS_BY_TARGET[tn][RECIPES[tn]])
-        w = df[pd.notna(df[t.obs_col]) & pd.notna(df[t.model_col]) & pd.notna(df[t.delta_col])].copy()
+        keep = pd.notna(df[t.obs_col]) & pd.notna(df[t.model_col]) & pd.notna(df[t.delta_col])
+        if "is_primary_profile" in df.columns:
+            keep &= df["is_primary_profile"].astype(bool)
+        w = df[keep].copy()
         w = _prepare_features(w).reset_index(drop=True)
         y = w[t.delta_col].to_numpy(float)
         a = w[acol].fillna(0.0).to_numpy(float)
