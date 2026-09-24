@@ -23,6 +23,7 @@ CACHE_DIR = Path("/data/suramya/rtofs_global_cache")
 FIELD_DIRS = [
     Path("/data/suramya/rtofs_global_ohc_fields_2024"),
     Path("/data/suramya/rtofs_global_ohc_fields_2025"),
+    Path("/data/suramya/rtofs_global_ohc_fields_2026"),
 ]
 WORKERS = 3
 
