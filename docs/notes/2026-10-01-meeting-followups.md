@@ -105,19 +105,53 @@ beyond 200 km of a float). The MoE removes the bias, but the leftover error is
 not random: it is too high across the central and eastern tropical Pacific and
 the southern Indian Ocean, and still too low in the western warm pool.
 
-## 9, 10. Missing physics and feature combinations: running
+## 9, 10. Missing physics and feature combinations
 
-`OHC/exploration/run_missing_physics_search.py`. Hypothesis from item 12: the
-east-west Pacific shape of the leftover error follows the El Nino / La Nina
-state, which a correction learned on earlier months cannot anticipate. Tests an
-RTOFS-only Nino 3.4 index, cyclic longitude (removes the artificial seam at the
-dateline, in the middle of the Pacific), pairwise products, sums and ratios,
-family averages, and a higher leaf-size floor.
+`OHC/exploration/run_missing_physics_search.py`, three seeds each. Change in MAE:
 
-Note on item 10: for tree models a one-to-one smooth transform of a feature
-(log, square, ...) can never add information, because splitting on f and on
-log f separates the same rows. Only new information, non-monotone transforms,
-and combinations of features can help.
+| addition | TCHP | D26 |
+|---|---|---|
+| **cyclic longitude (sin, cos)** | **-0.041** | **-0.041** |
+| best feature combinations from the residual screen | -0.050 | -0.020 |
+| El Nino index (Nino 3.4, from RTOFS SST) | +0.015 | +0.001 |
+| family averages (anomaly, std, gradient) | +0.007 | +0.006 |
+| leaf-size floor 20 / 50 / 100 | +0.005 / -0.002 / +0.002 | 0.000 / +0.006 / +0.020 |
+
+* **Cyclic longitude** is the clean win, identical on both targets. Mechanism:
+  the MoE's East-Pacific expert spans the dateline (160 E to 100 W), so in raw
+  longitude its region is two disjoint ranges (160..180 and -180..-100) that the
+  trees must stitch together. Sine and cosine make it one continuous region.
+* **Combinations** help most for TCHP; the best were sums of standardised
+  features such as z(D26) + z(SSH), plausibly two noisy measures of how deep the
+  warm layer reaches, averaged. They were picked by screening residuals on these
+  folds and disagree between targets, so they are kept out of the frozen recipe.
+* **Only non-monotone functions and combinations can help a tree**: a one-to-one
+  smooth transform (log, square) splits the same rows as the original feature.
+* **El Nino: untested rather than refuted.** The east-Pacific over-correction is
+  stable across all three folds (TCHP +3.6, +2.2, +5.2), and the mean Nino 3.4
+  anomaly in every validation period was near neutral (-0.15, -0.29, -0.05). No
+  validation period contained a real El Nino or La Nina, so this test could not
+  have detected an ENSO effect. Only multi-year data (GOFS option C) can.
+
+## Frozen recipe for the 2026 test
+
+`OHC/exploration/run_frozen_recipe_dev.py`. Chosen on principle, not by score:
+remove `year` (cannot generalise to 2026), the three deep-profile features
+(cannot be built for 2026; 89% imputed anyway), and grid distance (no effect);
+add cyclic longitude. TCHP 34 features, D26 32.
+
+| development folds | current | frozen |
+|---|---|---|
+| TCHP single / MoE / MoE Gulf | 10.87 / 10.68 / 12.33 | **10.84 / 10.69 / 12.23** |
+| D26 single / MoE / MoE Gulf | 10.78 / 10.57 / 11.92 | **10.73 / 10.54 / 11.68** |
+
+## 2026 holdout tables
+
+`OHC/build_holdout_2026_tables.py` -> `OHC/output/ml_collocation/holdout_2026/`.
+138,640 profiles on 265 days (2026-01-01 to 09-22), 32,710 warm rows with one
+profile per cast, observation time matched for 100%. Kept physically separate
+from the development tables; to be evaluated exactly once, after the frozen
+recipe is agreed.
 
 ## 11. GOFS reanalysis: needs a decision on purpose
 
