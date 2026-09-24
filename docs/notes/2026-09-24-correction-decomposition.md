@@ -79,3 +79,64 @@ stencil edge bias. Check before quoting.
 * The remaining 12% (TCHP) and 18% (D26) needs the other inputs.
 * All scores are on the same development folds; the closed form has almost no
   free parameters, but the comparison models do.
+
+---
+
+# Post-fix reruns, 2026-09-24 (rebuilt tables, one primary profile per cast)
+
+Tables rebuilt with the interpolation fix (`OHC/rebuild_tables_20260924.py`):
+identical row counts, 3,978 rows recovered from NaN, 0 valid values lost, 0.0
+maximum change on valid values, alignment guard passed on 322,616 rows. Every
+row now carries observation time, platform, cycle, data mode and
+`is_primary_profile`. Both reruns below use primary profiles only.
+
+## The benchmark moved (the duplicates were adding TCHP noise)
+
+On primary-only warm rows the full-recipe model scores **TCHP 10.87** (was
+11.40) and **D26 10.78** (was 10.74); raw RTOFS 16.38 / 15.08. The duplicated
+rows were secondary sampling schemes of the same cast at far lower vertical
+resolution (~72 levels against ~500), and TCHP is an integral that is
+sensitive to that resolution, so they injected noise into the TCHP target.
+D26, a crossing depth, barely moved. **The previous benchmark numbers,
+including the MoE's 11.19 / 10.55, are on a different population and must not
+be compared with these; the MoE needs rerunning on the clean data.**
+
+## Decomposition: holds
+
+| | TCHP | D26 |
+|---|---|---|
+| bias map only, % of full gain | 79 | 64 |
+| bias map + one damping number, % | **88** | **78** |
+| beta, all warm primary rows | -0.82 [-0.85, -0.78] | -0.80 |
+| beta, excluding near-edge | -0.85 | -0.81 |
+| fraction of RTOFS local structure kept | 18% | 20% |
+| gradient effect on leftover (per sd) | +0.29 [+0.11, +0.48] | +0.04 [-0.12, +0.23] |
+
+Same story as before the fix; beta moved from -0.88 to -0.82 for TCHP. The
+position (displacement) signature stays significant for TCHP only.
+
+Asymmetry: D26's warm/cold difference nearly vanished (-0.78 vs -0.81; was
+-0.75 vs -0.90), so it was largely artifact. TCHP's grew (warm bumps -0.71,
+cold dips -0.95). Near-edge rows still fall mostly in the cold group, so the
+TCHP asymmetry remains unverified.
+
+## Emergent features: survived, halved
+
+Boundary rows are now genuine disagreements about whether 26 C water exists.
+
+| D26, cumulative | boundary | warm |
+|---|---|---|
+| + SSH / MLT / SBLT | 34.34 | 11.44 |
+| **+ temperature excess** | **31.01** | 11.42 |
+| raw RTOFS | 35.06 | 14.82 |
+
+* Temperature excess now cuts D26 boundary error by **3.32 m (-9.7%)**, down
+  from 7.00 m (-18.3%) before the fix. About half the original effect was the
+  interpolation artifact.
+* Warm rows still do not move (11.44 -> 11.42), so the conditional-value
+  signature holds: the input helps only where the existence of 26 C water is
+  in doubt.
+* **TCHP: the effect is essentially gone** (7.78 -> 7.73). And on genuine TCHP
+  boundary rows every model is **worse than raw RTOFS** (best 7.67 vs raw
+  7.43). Near the threshold TCHP values are small, and a correction trained
+  mostly on warm rows (typical correction +10) overshoots.
