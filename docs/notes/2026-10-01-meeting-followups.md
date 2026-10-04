@@ -167,3 +167,28 @@ is a hindcast, so the comparison is not like for like. The reanalysis ends in
 * C. more El Nino / La Nina variety for training: largest, and a different model
   than RTOFS, so any correction learned there has to transfer. Worth it only if
   the ENSO hypothesis holds.
+
+## Figures (Drive: `HHP-analysis-2026-10-01/figures/`)
+
+Made by `OHC/exploration/plot_meeting_followups_20261001.py` (01-10); 11-13 are copies of earlier outputs.
+
+| figure | meeting item | what it shows |
+|---|---|---|
+| `01_items1-2-8_removing_grid_year_time.png` | 1, 2, 8 | change in error when grid distance, year or time features are removed |
+| `02_items3-7_seasons_in_rtofs_vs_error.png` | 3, 7 | RTOFS follows the seasons; its error barely does |
+| `03_item4_how_the_data_is_split.png` | 4 | the three ~5-month test blocks and the 2026 holdout on a timeline |
+| `04_item5_tree_splits_keep_all_data.png` | 5 | profiles per leaf across all 300 trees; bigger-leaf test |
+| `05_item6_why_the_anomaly_splits_early.png` | 6 | single-split strength on the raw error vs after location is known |
+| `06_items9-10_new_features_and_dateline.png` | 9, 10 | candidate features; why sin/cos longitude removes the dateline seam |
+| `07_item10_el_nino_untestable.png` | 10 | Nino 3.4 index over the test blocks; east-Pacific over-correction by month |
+| `08_item11_data_coverage_rtofs_gofs_argo.png` | 11 | what RTOFS, GOFS and Argo data exist and what is downloaded |
+| `09_item11_gofs_minus_rtofs_tchp_20240615.png` | 11 | GOFS minus RTOFS TCHP on one shared day |
+| `10_frozen_recipe_vs_current.png` | 2026 test | frozen recipe vs current, development blocks |
+| `11_item12_tchp_error_maps_before_after.png`, `12_item12_d26_error_maps_before_after.png` | 12 | raw RTOFS vs MoE error maps, points and interpolated |
+| `13_item11_gofs2015_pilot_bias_by_region.png` | 11 | 2015 GOFS reanalysis pilot: bias by region |
+
+## Update 2026-10-04: GOFS 3.1 analysis download
+
+Three years, 2021-09-05 to 2024-09-04, daily 06Z (`OHC/exploration/build_gofs31_analysis_daily_fields.py`):
+only temperature to 250 m over 42 S - 48 N and SSH are read, since the HYCOM server allows ~1-2.4 MB/s.
+The 222 days overlapping RTOFS (2024-01-27 to 09-04) are complete; the rest finishes around 2026-10-05.
