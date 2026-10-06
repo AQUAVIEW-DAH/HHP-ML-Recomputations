@@ -123,20 +123,27 @@ def plot_scores(R: pd.DataFrame) -> None:
                   for d, c in rows]
         ax.set_yticks(y)
         ax.set_yticklabels(labels)
+        full = R[(R.target == tn) & (R.variant == "full recipe")].set_index("test design")
         for yy, (d, c) in zip(y, rows):
             if c == "change mae":
                 ax.axhspan(yy - 0.45, yy + 0.45, color=NEUTRAL, zorder=0)
+            base = full.loc[d, c.replace("change ", "")]
+            ax.text(1.02, yy, f"{base:.2f}", transform=ax.get_yaxis_transform(), ha="left", va="center",
+                    fontsize=10.5, color=INK2, fontweight="bold" if c == "change mae" else None)
+        ax.text(1.02, y[0] + 0.75, "full recipe\nMAE (= 0)", transform=ax.get_yaxis_transform(), ha="left",
+                va="bottom", fontsize=9.5, color=MUTED)
         ax.grid(axis="y", visible=False)
         ax.set_title(f"{tn.upper()}", loc="left")
-        ax.set_xlabel("Change in error (MAE) vs full recipe     ← better | worse →")
+        ax.set_xlabel("Change in error (MAE) vs the full recipe on the same test block    ← better | worse →",
+                      fontsize=11)
     fig.legend(*axes[0].get_legend_handles_labels(), loc="lower center", ncol=3, bbox_to_anchor=(0.55, 0.0))
     headline(fig, "The calendar adds little once RTOFS's seasonal fields are in, and hurts D26 in full-year tests",
              "Each row is one test block; shaded rows are overall scores. Full-year tests train on one year and test on "
              "the other. TCHP: removing the calendar or the seasonal\nphysical features (SST, mixed layer, boundary layer) "
              "alone changes little and the sign flips between periods; removing both costs most, so they carry the same\n"
              "seasonal information. D26: the seasonal physical features help in every test, while removing the calendar "
-             "improves both full-year tests.", top=0.8)
-    fig.subplots_adjust(left=0.17, right=0.98, bottom=0.16, wspace=0.08)
+             "improves both full-year tests.", top=0.76)
+    fig.subplots_adjust(left=0.15, right=0.93, bottom=0.16, wspace=0.2)
     fig.savefig(OUT / "time_vs_seasonal_physics_by_test_block.png", dpi=150)
     plt.close(fig)
 

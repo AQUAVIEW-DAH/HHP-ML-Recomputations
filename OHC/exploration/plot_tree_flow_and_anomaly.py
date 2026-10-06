@@ -91,8 +91,11 @@ def tree_flow() -> None:
             continue
         for child, side in ((int(r.Yes.split("-")[1]), "yes"), (int(r.No.split("-")[1]), "no")):
             n = n_of(child)
-            ax.plot([X0(pos[node][0]), X0(pos[child][0])], [Y0(pos[node][1]), Y0(pos[child][1])],
-                    color=BLUE_LIGHT, lw=1 + 18 * n / total, solid_capstyle="round", zorder=1)
+            x0, y0, x1, y1 = X0(pos[node][0]), Y0(pos[node][1]), X0(pos[child][0]), Y0(pos[child][1])
+            ax.plot([x0, x1], [y0, y1], color=BLUE_LIGHT, lw=1 + 18 * n / total, solid_capstyle="round", zorder=1)
+            ax.text(x0 + 0.42 * (x1 - x0), y0 + 0.42 * (y1 - y0), side, ha="center", va="center", fontsize=9.5,
+                    fontweight="bold", color=BLUE if side == "yes" else ORANGE, zorder=4,
+                    bbox=dict(boxstyle="round,pad=0.15", fc=SURF, ec="none"))
     for node, r in T.iterrows():
         x, y = X0(pos[node][0]), Y0(pos[node][1])
         n = n_of(node)
@@ -104,7 +107,8 @@ def tree_flow() -> None:
             f = cols[int(r.Feature[1:])]
             ax.text(x, y, f"{SHORT(f)}\n< {r.Split:.3g}?\n{n:,} profiles", ha="center", va="center", fontsize=9.5,
                     color=INK, bbox=dict(boxstyle="round,pad=0.35", fc=SURF, ec=BLUE, lw=1.2), zorder=3)
-    ax.text(0, 1.07, "yes ← | → no at every question", fontsize=10.5, color=MUTED, transform=ax.transAxes)
+    ax.text(0, 1.07, "Each box asks a yes/no question; 'yes' (the condition is true) always goes left.", fontsize=10.5,
+            color=MUTED, transform=ax.transAxes)
     ax.text(0.5, -0.1, f"Leaves (bottom): number of profiles, and their average error Argo − RTOFS (kJ/cm²). "
             f"The {len(leaves)} leaf counts add up to {sum(count.values()):,} = all {total:,} profiles.",
             ha="center", fontsize=11.5, color=INK2, transform=ax.transAxes)
