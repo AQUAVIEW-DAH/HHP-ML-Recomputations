@@ -206,31 +206,35 @@ def main() -> None:
                 stats.append({"target": q, "comparison": "same floats 2024-01-31..09-04", "model": src, "region": box,
                               "mean_error_argo_minus_model": mean, "mean_abs_error": mae, "profiles": n})
 
-        # ---- B. full records by season
-        fig, axes, cax = layout(4, 3, 5.6, 2.4, 1.3, 1.45, 0.35, 0.3, 0.5)
-        rowdef = [(src, sname) for sname in SEASONS for src in ("gofs", "rtofs")]
+        # ---- B. full records, one image per season (GOFS row above RTOFS row)
         period = {"gofs": "GOFS\nSep 2021 - Sep 2024", "rtofs": "RTOFS\nFeb 2024 - Dec 2025"}
-        for i, (src, sname) in enumerate(rowdef):
-            d = (g if src == "gofs" else r)
-            s_ = d[d.month.isin(SEASONS[sname])][f"err_{q}"]
-            for j, (mlabel, m) in enumerate(METHODS.items()):
-                im = draw_map(axes[i, j], grids[("season", q, f"{src}|{sname}", m)], lim, mlabel if i == 0 else None)
-            row_label(fig, axes[i, 0], f"{period[src]}\n{sname}\nmean {s_.mean():+.1f}, |·| {s_.abs().mean():.1f}\n"
-                                       f"{len(s_):,} profiles")
-        corr = {}
         for sname in SEASONS:
-            a, b = grids[("season", q, f"gofs|{sname}", "gaussian")], grids[("season", q, f"rtofs|{sname}", "gaussian")]
+            fig, axes, cax = layout(3, 2, 8.0, 2.7, 1.6, 1.75, 0.4, 0.45, 0.45)
+            for j, src in enumerate(("gofs", "rtofs")):
+                d = (g if src == "gofs" else r)
+                s_ = d[d.month.isin(SEASONS[sname])][f"err_{q}"]
+                head = period[src].replace("\n", ", ")
+                axes[0, j].set_title(f"{head}\nmean {s_.mean():+.1f}, mean |·| {s_.abs().mean():.1f}, "
+                                     f"{len(s_):,} profiles", loc="left", fontsize=12, fontweight="bold")
+                for i, (mlabel, m) in enumerate(METHODS.items()):
+                    im = draw_map(axes[i, j], grids[("season", q, f"{src}|{sname}", m)], lim)
+            for i, mlabel in enumerate(METHODS):
+                row_label(fig, axes[i, 0], mlabel.replace(" (", "\n("))
+            a = grids[("season", q, f"gofs|{sname}", "gaussian")]
+            b = grids[("season", q, f"rtofs|{sname}", "gaussian")]
             ok = np.isfinite(a) & np.isfinite(b)
-            corr[sname] = np.corrcoef(a[ok], b[ok])[0, 1]
-        cb = fig.colorbar(im, cax=cax, extend="both")
-        cb.set_label(f"Argo − model ({UNIT[q]}); red = model too low")
-        headline(fig, f"{q.upper()}: where each model is too high or too low, by season, over its full record",
-                 f"Rows alternate GOFS (2021-24: three winters, three summers) and RTOFS (2024-25). Correlation of the GOFS "
-                 f"and RTOFS Gaussian-weighted maps: winter {corr['winter (Jan-Mar)']:.2f}, summer "
-                 f"{corr['summer (Jul-Sep)']:.2f}.\nThe periods differ, so these maps also contain year-to-year changes; "
-                 "the same-floats figure is the like-for-like comparison.", top=0.89)
-        fig.savefig(OUT / f"B_{q}_seasonal_full_records.png", dpi=140)
-        plt.close(fig)
+            cr = np.corrcoef(a[ok], b[ok])[0, 1]
+            cb = fig.colorbar(im, cax=cax, extend="both")
+            cb.set_label(f"Argo − model ({UNIT[q]}); red = model too low")
+            years = "2022-24" if sname.startswith("winter") else "2022-24"
+            headline(fig, f"{q.upper()}, {sname}: where GOFS and RTOFS are too high or too low against Argo",
+                     f"Left: GOFS, all {sname.split(' ')[0]}s in its record ({years}). Right: RTOFS ({sname.split(' ')[0]}s of "
+                     f"2024 and 2025). Correlation of the two Gaussian-weighted maps {cr:.2f}.\nThe periods differ, so the "
+                     "maps also contain year-to-year changes; the same-floats figure (A) is the like-for-like comparison. "
+                     "Rows: three interpolation methods.", top=0.85)
+            tag = "1_winter" if sname.startswith("winter") else "2_summer"
+            fig.savefig(OUT / f"B{tag}_{q}_full_records.png", dpi=140)
+            plt.close(fig)
         for src, d in (("GOFS 2021-24", g), ("RTOFS 2024-25", r)):
             for box, (mean, mae, n) in box_stats(d, f"err_{q}").items():
                 stats.append({"target": q, "comparison": "full record", "model": src, "region": box,
