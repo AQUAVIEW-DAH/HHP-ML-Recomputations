@@ -51,7 +51,7 @@ training and validation. Use it to judge features an oceanographer would expect 
 * 4: training data builds the trees; test blocks are only scored, but their scores guide our choices;
   the holdout is never used for a choice and is scored once.
 
-## Plan (not started)
+## Plan (status 2026-10-15: all done, see Drive HHP-analysis-2026-10-15-meeting-items)
 
 1. One page of short bullet points of the main findings, for the seminar and paper.
 2. Noise-feature test (training vs validation error, many repeats), then shuffle each favourite feature
@@ -63,3 +63,20 @@ training and validation. Use it to judge features an oceanographer would expect 
 5. Full-year holdout: options for Dr. Jacobs (wait for all of 2026 vs hold out 2025).
 
 Open question: what "only lat might have trouble at the 45 degree angle" refers to.
+
+## Results (2026-10-15)
+
+Drive folder HHP-analysis-2026-10-15-meeting-items (README there summarises every figure).
+* Folding transforms (squares, distance from median) erase the sign that the anomaly and latitude carry
+  (+0.8 to +1.0); order-keeping transforms change nothing.
+* Build-up, physical features first: keep RTOFS values, 1-degree averages, pairwise differences, |lat| and
+  lon sin/cos; drop spread/gradients, products, sums/means, powers, calendar. Kept-only model (170
+  features): TCHP 10.75, D26 10.57 vs full recipe 10.87 / 10.77.
+* Noise test: chance level about +/-0.03. Shuffle and remove-block tests: location matters most; calendar,
+  grid distance, SST neighbourhood and deep profile can be removed.
+* Anomaly: Argo's departure is larger than RTOFS's but barely correlated (r ~ 0.1). Fronts: averaging
+  helps twice as much at fronts, but the real share of RTOFS detail does not drop there and there is no
+  systematic offset; mostly noisy detail in calm water plus random misplacement at fronts.
+* Full-year: ranking identical across 12-month windows; calendar unstable. Options note:
+  docs/notes/2026-10-15-full-year-holdout-options.md (recommend testing once on all of 2026).
+* "45 degree" note read as diagonal lat/lon boundaries: no gain from diagonal combinations.
